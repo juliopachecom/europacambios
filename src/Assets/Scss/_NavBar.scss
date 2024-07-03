@@ -1,0 +1,160 @@
+.NavBar {
+    background-color: #FFFFFF;
+    z-index: 1000;
+  
+    .Nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 2rem;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  
+      ul {
+        display: flex;
+        list-style: none;
+        gap: 1rem;
+        align-items: center;
+  
+        li {
+          a {
+            text-decoration: none;
+            color: #000;
+            font-weight: 500;
+            transition: all 0.3s ease;
+  
+            &:hover {
+              color: #4972B0;
+            }
+          }
+  
+          button.SingIn {
+            background-color: #E3E3E3;
+            color: #1E1E1E;
+            padding: 0.5rem 1rem;
+            border: 1px solid #919191;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+  
+            &:hover {
+              background-color: #2C2C2C;
+              color: #F5F5F5;
+            }
+          }
+  
+          button.SingUp {
+            background-color: #70A83B;
+            color: #F5F5F5;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+  
+            &:hover {
+              background-color: #e6e8e3;
+              color: #1E1E1E;
+              border: 8px solid #7aa551;
+            }
+          }
+        }
+      }
+
+      .list li {
+        width: auto;
+        text-align: center;
+        list-style-type: none;
+        padding: 7px;
+        position: relative;
+      }
+    
+      .list li::before {
+        content: '';
+        position: absolute;
+        transform: translate(-50%, -50%);
+        left: 50%;
+        top: 100%;
+        width: 0;
+        height: 2px;
+        background: #70a83b;
+        transition-duration: 0.5s;
+      }
+    
+      .list li:hover::before {
+        width: 70px;
+      }
+    
+  
+      button.OrderBurger {
+        background-color: #E3E3E3;
+        color: #1E1E1E;
+        padding: 0.3rem 0.7rem;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+  
+        &:hover {
+          background-color: #1E1E1E;
+          color: #E3E3E3;
+          border: 1px solid #919191;
+        }
+      }
+    }
+  
+    .Collapse {
+      width: 100%;
+      background-color: #70A83B;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+  
+      ul {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        list-style: none;
+        gap: 1rem;
+        padding: 0;
+        margin: 0;
+  
+        li {
+          width: 100%;
+          text-align: center;
+  
+          a {
+            color: #FFFFFF;
+            font-weight: 500;
+            transition: all 0.3s ease;
+  
+            &:hover {
+              color: #D0D0D0;
+            }
+          }
+  
+          button.SingIn, button.SingUp {
+            background-color: #FFFFFF;
+            color: #70A83B;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+  
+            &:hover {
+              background-color: #D0D0D0;
+              color: #FFFFFF;
+            }
+          }
+        }
+      }
+  
+      &.open {
+        max-height: 100vh;
+        padding: 1rem 0;
+      }
+    }
+  }
+  
