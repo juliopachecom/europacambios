@@ -1,9 +1,17 @@
 import { createContext, useContext } from "react";
+import { useLocalStorage } from "../Hooks/useLocalStorage";
 
 export const DataContext = createContext();
 
 export function DataContextProvider(props) {
-    const value = {};
+    const [logged, setLogged] = useLocalStorage('log', false);
+    const [infoTkn, setInfoTkn] = useLocalStorage('tkn', '');
+    const url = 'https://europacambiosveapi-production.up.railway.app';
+    const value = {
+        logged, setLogged,
+        infoTkn, setInfoTkn,
+        url
+    };
 
     return (
         <DataContext.Provider value={value}>

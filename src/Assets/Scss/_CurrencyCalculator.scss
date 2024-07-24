@@ -1,0 +1,108 @@
+.currency-calculator {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  max-width: 600px;
+  margin: 20px auto;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  color: #5a8a4e;
+  margin-bottom: 20px;
+}
+
+.calculator-horizontal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.input-group {
+  flex: 1;
+  padding: 0 10px;
+}
+
+.input-group label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+}
+
+.input-group .flag-icon {
+  width: 50px;  /* Tamaño reducido para las banderas */
+  height: auto;
+  margin-right: 8px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.exchange-rate {
+  margin: 20px 0;
+  font-size: 18px;
+}
+
+.exchange-icon {
+  color: #4a90e2;
+  margin-right: 8px;
+}
+
+.rate-text {
+  display: inline;
+}
+
+.rate-value {
+  font-weight: bold;
+  color: #70a83b;
+}
+
+button {
+  background-color: #70a83b;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #5a8a4e;
+}
+
+.loading, .error {
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.spinner {
+  margin-right: 8px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error {
+  color: #e74c3c;
+}
+
+.error svg {
+  margin-right: 8px;
+}

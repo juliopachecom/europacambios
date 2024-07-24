@@ -1,0 +1,51 @@
+.privacy-policy {
+    font-family: Arial, sans-serif;
+    color: #333;
+    line-height: 1.6;
+    padding: 20px;
+    background-color: #f9f9f9;
+  
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+  
+    .title {
+      text-align: center;
+      color: #007bff;
+      margin-bottom: 20px;
+    }
+  
+    .section {
+      margin-bottom: 20px;
+    }
+  
+    .section-title {
+      color: #5a8a4e;
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+    }
+  
+    ul {
+      list-style-type: disc;
+      margin-left: 20px;
+    }
+  
+    p {
+      margin: 0 0 10px;
+    }
+  
+    a {
+      color: #007bff;
+      text-decoration: none;
+  
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+  

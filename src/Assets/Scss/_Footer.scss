@@ -1,128 +1,138 @@
 footer {
-    background: #f0f0f0;
-    padding-top: 50px;
-    color: black;
-  
+  background: #f0f0f0;
+  padding-top: 50px;
+  color: black;
+
+  .container {
+    width: 100%;
+    max-width: 1140px;
+    margin: auto;
+    display: flex;
+    flex-direction: column; /* Cambiado a columna por defecto */
+    align-items: center;
+    position: relative;
+  }
+
+  .footer-logo {
+    height: 70px;
+    width: 70px;
+    margin-bottom: 20px; /* Cambiado para separar en vertical */
+  }
+
+  .footer-content, .footer-content1 {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 20px; /* Añadir margen inferior */
+  }
+
+  h3 {
+    font-size: 25px;
+    margin-bottom: 15px;
+    left: 5px;
+    text-align: center;
+  }
+
+  .footer-content p, .footer-content1 p {
+    width: auto;
+    margin: auto;
+    padding: 7px;
+  }
+
+  .footer-content ul {
+    text-align: center;
+    padding: 0;
+  }
+
+  .list {
+    padding: 0;
+  }
+
+  .list li {
+    width: auto;
+    text-align: center;
+    list-style-type: none;
+    padding: 7px;
+    position: relative;
+  }
+
+  .list li::before {
+    content: '';
+    position: absolute;
+    transform: translate(-50%, -50%);
+    left: 50%;
+    top: 100%;
+    width: 0;
+    height: 2px;
+    background: #70a83b;
+    transition-duration: 0.5s;
+  }
+
+  .list li:hover::before {
+    width: 70px;
+  }
+
+  .social-icons {
+    text-align: center;
+    padding: 0;
+    margin-top: 10px;
+  }
+
+  .social-icons li {
+    cursor: pointer;
+    display: inline-block;
+    text-align: center;
+    padding: 10px;
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .social-icons li:hover {
+    transform: scale(1.2);
+  }
+
+  .social-icons li:hover svg {
+    color: #70a83b;
+  }
+
+  .bottom-bar {
+    background: #70a83b;
+    text-align: center;
+    padding: 10px 0;
+    margin-top: 50px;
+  }
+
+  .bottom-bar p {
+    color: #343434;
+    margin: 0;
+    font-size: 16px;
+    padding: 7px;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  a:hover {
+    color: #70a83b;
+  }
+
+  /* Media queries para dispositivos móviles */
+  @media (min-width: 768px) {
     .container {
-      width: 1140px;
-      margin: auto;
-      display: flex;
+      flex-direction: row; /* Cambiar a fila para pantallas más grandes */
       justify-content: center;
-      position: relative; 
     }
-  
+
+    .footer-content, .footer-content1 {
+      width: 33.3%;
+      text-align: left; /* Ajustar alineación para pantallas más grandes */
+      margin-bottom: 0;
+    }
+
     .footer-logo {
-      position: relative;
-      height: 70px;
-      width: 70px; 
-      margin-right: 20px; 
-    }
-  
-    .footer-content {
-      width: 33.3%;
-    }
-  
-    .footer-content1 {
-      width: 33.3%;
-  
-      h3 {
-        font-size: 25px;
-        margin-bottom: 15px;
-        left: 5px;
-        text-align: left !important;
-      }
-    }
-  
-    h3 {
-      font-size: 25px;
-      margin-bottom: 15px;
-      left: 5px;
-      text-align: center;
-    }
-  
-    .footer-content p {
-      width: 190px;
-      margin: auto;
-      padding: 7px;
-      margin-left: 2px;
-    }
-  
-    .footer-content ul {
-      text-align: center;
-    }
-  
-    .list {
-      padding: 0;
-    }
-  
-    .list li {
-      width: auto;
-      text-align: center;
-      list-style-type: none;
-      padding: 7px;
-      position: relative;
-    }
-  
-    .list li::before {
-      content: '';
-      position: absolute;
-      transform: translate(-50%, -50%);
-      left: 50%;
-      top: 100%;
-      width: 0;
-      height: 2px;
-      background: #70a83b;
-      transition-duration: 0.5s;
-    }
-  
-    .list li:hover::before {
-      width: 70px;
-    }
-  
-    .social-icons {
-      text-align: center;
-      padding: 0;
-      margin-top: 10px; 
-    }
-  
-    .social-icons li {
-      cursor: pointer;
-      display: inline-block;
-      text-align: center;
-      padding: 10px;
-      transition: transform 0.3s ease-in-out;
-    }
-  
-    .social-icons li:hover {
-      transform: scale(1.2); 
-    }
-  
-    .social-icons li:hover svg {
-      color: #70a83b; 
-    }
-  
-    .bottom-bar {
-      background: #70a83b;
-      text-align: center;
-      padding: 10px 0;
-      margin-top: 50px;
-    }
-  
-    .bottom-bar p {
-      color: #343434;
-      margin: 0;
-      font-size: 16px;
-      padding: 7px;
-    }
-  
-    a {
-      color: inherit; 
-      text-decoration: none; 
-      cursor: pointer; 
-    }
-  
-    a:hover {
-      color: #70a83b; 
+      margin-right: 20px; /* Restaurar margen derecho */
+      margin-bottom: 0;
     }
   }
-  
+}

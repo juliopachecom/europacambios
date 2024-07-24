@@ -22,19 +22,19 @@ function Footer() {
           <ul className="list">
             <li><Link to='/'>Inicio</Link></li>
             <li><Link to='/'>Faqs</Link></li>
-            <li><Link to='/'>Registro</Link></li>
-            <li><Link to='/'>Inicio de sesion</Link></li>
-            <li><Link to='/'>Terminos y Condiciones</Link></li>
+            <li><Link to='/Register'>Registro</Link></li>
+            <li><Link to='/Login'>Inicio de sesion</Link></li>
+            <li><Link to='/TermsAndConditions'>Terminos y Condiciones</Link></li>
           </ul>
         </div>
 
         <div className="footer-content">
-          <h3>Follow Us</h3>
+          <h3>Redes Sociales</h3>
           <ul className="social-icons">
-            <li><FontAwesomeIcon icon={faInstagram} /></li>
-            <li><FontAwesomeIcon icon={faFacebook} /></li>
-            <li><FontAwesomeIcon icon={faWhatsapp} /></li>
-            <li><FontAwesomeIcon icon={faXTwitter} /></li>
+          <a href="https://wa.me/624377261">  <li><FontAwesomeIcon icon={faWhatsapp} /></li></a> 
+            <a href="https://facebook.com/p/europacambiosve-100088844974530/"> <li><FontAwesomeIcon icon={faFacebook} /></li></a>
+            <a href="https://www.instagram.com/europacambiosve/"><li><FontAwesomeIcon icon={faInstagram} /></li></a>
+            <a href="https://x/europacambiosve"><li><FontAwesomeIcon icon={faXTwitter}/></li></a>
           </ul>
         </div>
       </div>

@@ -1,11 +1,23 @@
 @use 'NavBar';
 @use 'Home';
 @use 'Footer';
+@use 'Login';
+@use 'Register';
+@use 'Recover';
+@use 'RecoverUpdate';
+@use 'Dashboard';
+@use 'Changes';
+@use 'Sidebar';
+@use 'UsersVerificated';
+@use 'FixedAlert';
+@use 'CurrencyCalculator';
+@use 'TermnsAndConditions';
 
 *{
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
+    font-family: 'Roboto', sans-serif;
 }
 
 body{

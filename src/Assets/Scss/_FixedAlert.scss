@@ -1,0 +1,46 @@
+.fixed-alert {
+  position: relative;
+  top: 0;
+  padding: 10px 20px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-size: 16px;
+  z-index: 1000;
+  text-align: center;
+}
+
+.fixed-alert.error {
+  background-color: #ff6b6b;
+  color: #fff;
+}
+
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.spinner-image-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+}
+
+.spinner-image {
+  object-fit: contain;
+  animation: pulse linear 0.9s infinite alternate ; /* Agregamos la animación 'pulse' a la imagen */
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1; /* La imagen es completamente visible al principio y al final */
+  }
+  50% {
+    opacity: 0; 
+  }
+}

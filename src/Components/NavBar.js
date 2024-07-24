@@ -1,43 +1,69 @@
 import React, { useState } from "react";
 import Logo from "../Assets/Images/Logo.png";
 import { IoReorderThree } from "react-icons/io5";
+import { useDataContext } from '../Context/dataContext';
+import { Link } from 'react-router-dom';
+import { FiLogOut } from 'react-icons/fi';
+import { clearLocalStorage } from '../Hooks/useLocalStorage';
 
-function NavBar({ log }) {
+function NavBar() {
+  const { logged } = useDataContext();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  const clearLocal = () => {
+    clearLocalStorage();
+    setTimeout(() => {
+      window.location.href = '/';
+    }, 500);
+  };
+
+  const renderMenuItems = () => {
+    if (!logged) {
+      return (
+        <>
+          <ul className="list">
+            <li><Link to="/">Inicio</Link></li>
+            <li><Link to="#about">Nosotros</Link></li>
+            <li><a href="https://wa.me/624377261">Contacto</a></li>
+            <li><Link to="/Login"><button className="SingIn">Iniciar Sesion</button></Link></li>
+            <li><Link to="/Register"><button className="SingUp">Registro</button></Link></li>
+          </ul>
+        </>
+      );
+    }
+
+    return (
+      <>
+        <ul className="list">
+            <li><Link to="/">Inicio</Link></li>
+            <li><Link to="/Faqs">Faqs</Link></li>
+            <li><Link to="/Movements">Movimientos</Link></li>
+            <li><Link to="/Changes"><button className="log-btn">Cambios</button></Link></li>
+            <FiLogOut style={{ fontSize: '2em', marginTop: '.2em', color: '#409192', cursor: 'pointer' }} onClick={clearLocal} />
+        </ul>
+      </>
+    );
+  };
+
   return (
     <div className="NavBar">
       <nav className="Nav">
-        <img
-          src={Logo}
-          alt="EuropaCambiosVe"
-          width={window.innerWidth <= 760 ? 75 : 100}
-          style={{ cursor: "pointer" }}
-          title="EuropaCambiosVe"
-        />
+        <Link to="/">
+          <img
+            src={Logo}
+            alt="EuropaCambiosVe"
+            width={window.innerWidth <= 760 ? 75 : 100}
+            style={{ cursor: "pointer" }}
+            title="EuropaCambiosVe"
+          />
+        </Link>
         {window.innerWidth > 760 ? (
-          <ul>
-            <ul className="list">
-            <li>
-              <a href="/">Home</a>
-            </li>
-            <li>
-              <a href="/about">About</a>
-            </li>
-            <li>
-              <a href="/contact">Contact</a>
-            </li>
-            </ul>
-            <li>
-              <button className="SingIn">Sing In</button>
-            </li>
-            <li>
-              <button className="SingUp">Register</button>
-            </li>
+          <ul className="menu-list">
+            {renderMenuItems()}
           </ul>
         ) : (
           <button className="OrderBurger" onClick={toggleMenu}>
@@ -45,25 +71,13 @@ function NavBar({ log }) {
           </button>
         )}
       </nav>
-      <div className={`Collapse ${isMenuOpen ? "open" : ""}`}>
-        <ul>
-          <li>
-            <a href="/">Home</a>
-          </li>
-          <li>
-            <a href="/about">About</a>
-          </li>
-          <li>
-            <a href="/contact">Contact</a>
-          </li>
-          <li>
-            <button className="SingIn">Sing In</button>
-          </li>
-          <li>
-            <button className="SingUp">Register</button>
-          </li>
-        </ul>
-      </div>
+      {isMenuOpen && (
+        <div className={`Collapse ${isMenuOpen ? "open" : ""}`}>
+          <ul className="mobile-menu">
+            {renderMenuItems()}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
