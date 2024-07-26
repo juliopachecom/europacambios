@@ -21,13 +21,13 @@ function Home() {
   const cardRefs = useRef({});
 
   const bankData = {
-    Venezuela: ['Banco de Venezuela', 'Mercantil', 'Banesco'],
-    Colombia: ['Bancolombia', 'Banco de Bogotá', 'Davivienda'],
-    EEUU: ['Bank of America', 'Chase', 'Wells Fargo'],
-    Ecuador: ['Banco Pichincha', 'Produbanco', 'Banco de Guayaquil'],
-    Peru: ['Banco de Crédito del Perú', 'Interbank', 'Scotiabank'],
-    Panama: ['Banco General', 'Caja de Ahorros', 'Banistmo'],
-    Chile: ['Banco de Chile', 'BancoEstado', 'Santander'],
+    Venezuela: ['Todos los bancos', 'Pago movil'],
+    Colombia: ['Bancolombia', 'Nequi', 'Davivienda', 'Daviplata'],
+    EEUU: ['Bank of America', 'Zelle'],
+    Ecuador: ['Banco Pichincha', 'Banco del pacifico', 'Produbanco'],
+    Peru: ['Credit bank of perú', 'Banco de crédito', 'Interbank', 'Yape', 'BBVA'],
+    Panama: ['Banesco', 'Banco general Panamá', 'Banistmo'],
+    Chile: ['Banco de falabella', 'Banco de Chile', 'Banco de falabella'],
   };
 
   const handleCardClick = (country, event) => {

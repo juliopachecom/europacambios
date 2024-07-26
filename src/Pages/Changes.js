@@ -45,8 +45,21 @@ function Changes() {
   const [use_imgDni, setUseImgDni] = useState("");
   const [termsCheckbox, setTermsCheckbox] = useState(false);
   const [modal, setModal] = useState(false);
+  const [currencyPrice, setCurrencyPrice] = useState([]);
 
   const toggle = () => setModal(!modal);
+
+
+
+  const fetchCurrencyData = useCallback(async () => {
+    try {
+      const response = await axios.get(`${url}/currencyPrice`);
+      setCurrencyPrice(response.data); // Asegúrate de que esto se está estableciendo correctamente
+    } catch (error) {
+      console.log(error);
+    }
+  }, [setCurrencyPrice, url]);
+
 
 
   const clearLocal = () => {
@@ -150,20 +163,21 @@ function Changes() {
   };
 
   useEffect(() => {
+    fetchCurrencyData();
     fetchDataUser();
-  }, [fetchDataUser]);
+  }, [fetchCurrencyData, fetchDataUser]);
 
   return (
     <div className="Changes container px-5 py-4 my-5">
       <Row>{/* Placeholder for potential content */}</Row>
       {logged ? (
         user.use_verif === "S" ? (
-<Row>
+          <Row>
             <Col md="12">
               <Row>
                 <Col md="6" className="d-flex flex-column h-110">
                   <div className="p-4 d-flex flex-column purple-bg-color round-corner h-100 justify-content-between text-center">
-                   
+
                     <div>
                       <span className="text-uppercase font-25 weight-600 white-color-2">
                         <strong>Hola {user.use_name}</strong>
@@ -249,19 +263,15 @@ function Changes() {
                                 <img src={bolivares} alt="" />
                               </div>
                               <div className="d-flex flex-column ps-2">
-                                <span className="font-14 weight-700 purple-color-2">
-                                  Euros
-                                </span>
-                                <span className="font-10 weight-400 purple-color-2">
-                                  Bolivares
-                                </span>
+                                <span className="font-14 weight-700 purple-color-2">Euros</span>
+                                <span className="font-10 weight-500 purple-color-2">Bolivares</span>
                               </div>
                             </div>
                           </td>
                           <td className="align-middle text-end">
                             <div className="d-flex flex-column align-items-end">
                               <span className="font-14 weight-700 purple-color-2">
-                                39.8
+                                {currencyPrice.length > 0 ? currencyPrice[0].cur_EurToBs : 'N/A'}
                               </span>
                             </div>
                           </td>
@@ -273,24 +283,41 @@ function Changes() {
                                 <img src={bolivares} alt="" />
                               </div>
                               <div className="d-flex flex-column ps-2">
-                                <span className="font-14 weight-700 purple-color-2">
-                                  Euros
-                                </span>
-                                <span className="font-10 weight-400 purple-color-2">
-                                  Dolares
-                                </span>
+                                <span className="font-14 weight-700 purple-color-2">Euros</span>
+                                <span className="font-10 weight-500 purple-color-2">Dolares</span>
                               </div>
                             </div>
                           </td>
                           <td className="align-middle text-end">
                             <div className="d-flex flex-column align-items-end">
                               <span className="font-14 weight-700 purple-color-2">
-                                0.92
+                                {currencyPrice.length > 0 ? currencyPrice[0].cur_EurToUsd : 'N/A'}
+                              </span>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="align-middle">
+                            <div className="d-flex flex-row">
+                              <div className="d-flex flex-row justify-content-center align-items-center square round-corner-small light-yellow-bg-color yellow-color font-20">
+                                <img src={bolivares} alt="" />
+                              </div>
+                              <div className="d-flex flex-column ps-2">
+                                <span className="font-14 weight-700 purple-color-2">Dolares</span>
+                                <span className="font-10 weight-500 purple-color-2">Bolivares</span>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="align-middle text-end">
+                            <div className="d-flex flex-column align-items-end">
+                              <span className="font-14 weight-700 purple-color-2">
+                                {currencyPrice.length > 0 ? currencyPrice[0].cur_UsdToBs : 'N/A'}
                               </span>
                             </div>
                           </td>
                         </tr>
                       </tbody>
+
                     </Table>
                   </div>
                 </Col>
@@ -303,7 +330,7 @@ function Changes() {
                         <th className="text-uppercase font-10 weight-600 grey-color-2">
                           Ultimos Movimientos
                         </th>
-                        <th className="text-uppercase font-10 weight-600 purple-color-2 text-end" style={{cursor: 'pointer'}}>
+                        <th className="text-uppercase font-10 weight-600 purple-color-2 text-end" style={{ cursor: 'pointer' }}>
                           Ver todos
                         </th>
                       </tr>
@@ -405,7 +432,7 @@ function Changes() {
                 </Col>
               </Row>
             </Col>
-          </Row>        ) : (
+          </Row>) : (
           <Row>
             <Col md="12">
               <Row>
@@ -441,8 +468,8 @@ function Changes() {
                           user.use_verif === "N"
                             ? toggleModal
                             : user.use_verif === "E"
-                            ? toggleFifthModal
-                            : clearLocal
+                              ? toggleFifthModal
+                              : clearLocal
                         }
                       >
                         Recargar
@@ -453,8 +480,8 @@ function Changes() {
                           user.use_verif === "N"
                             ? toggleModal
                             : user.use_verif === "E"
-                            ? toggleFifthModal
-                            : clearLocal
+                              ? toggleFifthModal
+                              : clearLocal
                         }
                       >
                         Enviar Remesa
@@ -561,7 +588,7 @@ function Changes() {
                         <th className="text-uppercase font-10 weight-600 grey-color-2">
                           Ultimos Movimientos
                         </th>
-                        <th className="text-uppercase font-10 weight-600 purple-color-2 text-end" style={{cursor: 'pointer'}}>
+                        <th className="text-uppercase font-10 weight-600 purple-color-2 text-end" style={{ cursor: 'pointer' }}>
                           Ver todos
                         </th>
                       </tr>
@@ -668,22 +695,22 @@ function Changes() {
       ) : (
         <h1>Debes iniciar sesión para ver esta página</h1>
       )}
- <Modal isOpen={modal} toggle={toggle} centered>
-          <ModalHeader toggle={toggle}>
-            <FaInfoCircle /> Información
-          </ModalHeader>
-          <ModalBody className="text-center">
-            Los cambios estarán próximamente habilitados. Mantente informado.
-            <br />
-            Puedes realizar los cambios por 
-            <Link to="https://wa.me/624377261" target="_blank" className="whatsapp-btn">
-              <FaWhatsapp /> WhatsApp
-            </Link>
-          </ModalBody>
-          <ModalFooter>
-            <Button color="secondary" onClick={toggle}>Cerrar</Button>
-          </ModalFooter>
-        </Modal>
+      <Modal isOpen={modal} toggle={toggle} centered>
+        <ModalHeader toggle={toggle}>
+          <FaInfoCircle /> Información
+        </ModalHeader>
+        <ModalBody className="text-center">
+          Los cambios estarán próximamente habilitados. Mantente informado.
+          <br />
+          Puedes realizar los cambios por
+          <Link to="https://wa.me/624377261" target="_blank" className="whatsapp-btn">
+            <FaWhatsapp /> WhatsApp
+          </Link>
+        </ModalBody>
+        <ModalFooter>
+          <Button color="secondary" onClick={toggle}>Cerrar</Button>
+        </ModalFooter>
+      </Modal>
 
       {/* Modal para verificación */}
       <Modal

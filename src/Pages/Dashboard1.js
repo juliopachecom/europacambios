@@ -36,16 +36,10 @@ import {
   FaCoins,
   FaChartBar,
   FaChartPie,
-  FaChartLine,
-  FaYenSign,
-  FaMoneyCheckAlt,
-  FaMoneyBillWave,
-  FaPoundSign
 } from "react-icons/fa";
 import { IoGridOutline } from "react-icons/io5";
 import { FaBars, FaArrowDown, FaArrowUp, FaClock } from "react-icons/fa";
 import { clearLocalStorage } from "../Hooks/useLocalStorage";
-
 
 function Dashboard() {
   const { url, infoTkn, search } = useDataContext();
@@ -74,64 +68,7 @@ function Dashboard() {
   const [selectedUser, setSelectedUser] = useState(null);
 
   const [modalImageUser, setModalImageUser] = useState(false);
-  const toggleImageUser = () => setModalImageUser(!modalImageUser); 
-  const [currencyPrices, setCurrencyPrices] = useState({
-    cur_EurToBs: 0,
-    cur_EurToUsd: 0,
-    cur_UsdToBs: 0,
-    cur_EurToUsd_Pa: 0,
-    cur_EurToUsd_Ecu: 0,
-    cur_EurToSol_Pe: 0,
-    cur_EurToPes_Ch: 0
-  });
-  const [curId, setCurId] = useState(null);
-
-  const fetchCurrencyData = useCallback(async () => {
-    try {
-      const response = await axios.get(`${url}/currencyPrice`);
-      if (response.data && response.data.length > 0) {
-        setCurId(response.data[0].cur_id);
-        setCurrencyPrices({
-          cur_EurToBs: response.data[0].cur_EurToBs,
-          cur_EurToUsd: response.data[0].cur_EurToUsd,
-          cur_UsdToBs: response.data[0].cur_UsdToBs,
-          cur_EurToUsd_Pa: response.data[0].cur_EurToUsd_Pa,
-          cur_EurToUsd_Ecu: response.data[0].cur_EurToUsd_Ecu,
-          cur_EurToSol_Pe: response.data[0].cur_EurToSol_Pe,
-          cur_EurToPes_Ch: response.data[0].cur_EurToPes_Ch
-        });
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  }, [url]);
-
-  useEffect(() => {
-    fetchCurrencyData();
-  }, [fetchCurrencyData]);
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setCurrencyPrices(prevState => ({
-      ...prevState,
-      [name]: value
-    }));
-  };
-
-  const handleSaveChanges = async () => {
-    if (curId === null) {
-      alert('No se pudo encontrar el ID de la moneda.');
-      return;
-    }
-
-    try {
-      await axios.put(`${url}/currencyPrice/${curId}`, currencyPrices);
-      alert('Cambios guardados con éxito');
-    } catch (error) {
-      console.error(error);
-      alert('Error al guardar los cambios');
-    }
-  };
+  const toggleImageUser = () => setModalImageUser(!modalImageUser);
 
   const [modal, setModal] = useState(false);
   const toggle = () => {
@@ -784,69 +721,69 @@ function Dashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr key={select.use_id}>
-                    <td>
-                      <div className="d-flex px-2 py-1">
-                        <div>
-                          <FaUserCircle className="avatar avatar-sm me-3 border-radius-lg" />
+                    <tr key={select.use_id}>
+                      <td>
+                        <div className="d-flex px-2 py-1">
+                          <div>
+                            <FaUserCircle className="avatar avatar-sm me-3 border-radius-lg" />
+                          </div>
+                          <div className="d-flex flex-column justify-content-center">
+                            <h6 className="mb-0 text-sm">
+                              {select.use_name} {select.use_lastName}
+                            </h6>
+                            <p className="text-xs text-secondary mb-0">
+                              {select.use_email}
+                            </p>
+                          </div>
                         </div>
-                        <div className="d-flex flex-column justify-content-center">
-                          <h6 className="mb-0 text-sm">
-                            {select.use_name} {select.use_lastName}
-                          </h6>
-                          <p className="text-xs text-secondary mb-0">
-                            {select.use_email}
-                          </p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="align-middle text-start">
-                      <span className="text-secondary text-xs  font-weight-bold">
-                        {select.use_dni ? (
-                          select.use_dni
-                        ) : (
-                          <p>No hay resultados</p>
-                        )}
-                      </span>
-                    </td>
-                    <td className="align-middle text-center text-sm">
-                      <span className={`badge badge-sm`}>
-                        {select.use_verif === "s" || select.use_verif === "S" ? (
-                          <AiOutlineCheckCircle
-                            style={{
-                              color: "green",
-                              fontSize: "2em",
-                            }}
-                          />
-                        ) : select.use_verif === "e" ||
-                          select.use_verif === "E" ? (
-                          <AiOutlineClockCircle
-                            style={{
-                              color: "blue",
-                              fontSize: "2em",
-                            }}
-                          />
-                        ) : (
-                          <AiOutlineCloseCircle
-                            style={{
-                              color: "red",
-                              fontSize: "2em",
-                            }}
-                          />
-                        )}
-                      </span>
-                    </td>
-                    <td className="align-middle text-center">
-                      <span className="text-secondary text-xs  font-weight-bold">
-                        {select.use_amountUsd ? select.use_amountUsd : 0}
-                      </span>
-                    </td>
-                    <td className="align-middle text-center">
-                      <span className="text-secondary text-xs  font-weight-bold">
-                        {select.use_amountEur ? select.use_amountEur : 0}
-                      </span>
-                    </td>
-                    <td className="align-middle">
+                      </td>
+                      <td className="align-middle text-start">
+                        <span className="text-secondary text-xs  font-weight-bold">
+                          {select.use_dni ? (
+                            select.use_dni
+                          ) : (
+                            <p>No hay resultados</p>
+                          )}
+                        </span>
+                      </td>
+                      <td className="align-middle text-center text-sm">
+                        <span className={`badge badge-sm`}>
+                          {select.use_verif === "s" || select.use_verif === "S" ? (
+                            <AiOutlineCheckCircle
+                              style={{
+                                color: "green",
+                                fontSize: "2em",
+                              }}
+                            />
+                          ) : select.use_verif === "e" ||
+                            select.use_verif === "E" ? (
+                            <AiOutlineClockCircle
+                              style={{
+                                color: "blue",
+                                fontSize: "2em",
+                              }}
+                            />
+                          ) : (
+                            <AiOutlineCloseCircle
+                              style={{
+                                color: "red",
+                                fontSize: "2em",
+                              }}
+                            />
+                          )}
+                        </span>
+                      </td>
+                      <td className="align-middle text-center">
+                        <span className="text-secondary text-xs  font-weight-bold">
+                          {select.use_amountUsd ? select.use_amountUsd : 0}
+                        </span>
+                      </td>
+                      <td className="align-middle text-center">
+                        <span className="text-secondary text-xs  font-weight-bold">
+                          {select.use_amountEur ? select.use_amountEur : 0}
+                        </span>
+                      </td>
+                      <td className="align-middle">
                       {select.use_verif === "s" || select.use_verif === "S" ? (
                         <Button
                           color="primary"
@@ -862,7 +799,7 @@ function Dashboard() {
                         <p>No se encontraron resultados</p>
                       )}
                     </td>
-                  </tr>
+                    </tr>
                 </tbody>
               </Table>
             </ModalBody>
@@ -1487,10 +1424,11 @@ function Dashboard() {
                                     </td>
                                     <td className="align-middle text-center text-sm">
                                       <span
-                                        className={`badge badge-sm ${move.mov_status === "E" && (
+                                        className={`badge badge-sm ${
+                                          move.mov_status === "E" && (
                                             <FaClock className="pending-icon" />
                                           )
-                                          }`}
+                                        }`}
                                       ></span>
                                     </td>
 
@@ -1593,7 +1531,7 @@ function Dashboard() {
                                   <td className="align-middle text-center text-sm">
                                     <span className={`badge badge-sm`}>
                                       {user.use_verif === "s" ||
-                                        user.use_verif === "S" ? (
+                                      user.use_verif === "S" ? (
                                         <AiOutlineCheckCircle
                                           style={{
                                             color: "green",
@@ -1671,188 +1609,99 @@ function Dashboard() {
             {/* Tasas */}
             {activeItem === "Tasas" && (
               <div className="dashboard-container" style={{ width: "100%" }}>
-              <div className="content">
-                <div className="container-fluid py-4">
-                  <div className="card my-4" style={{ width: "100%" }}>
-                    <div className="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-                      <div className="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
-                        <h6 className="text-white text-capitalize ps-3">Tasas de Cambio</h6>
-                      </div>
-                    </div>
-                    <div className="card-body px-3 pb-2">
-                      <div className="row mb-3">
-                        {/* EUR a Bs */}
-                        <div className="col-lg-4 col-md-6 col-sm-12">
-                          <div className="d-flex align-items-center">
-                            <div className="icon icon-shape bg-gradient-primary text-white rounded-circle shadow">
-                              <FaCoins size={24} />
-                            </div>
-                            <div className="ms-3">
-                              <h6 className="mb-0">EUR a Bs</h6>
-                              <p className="text-sm text-muted mb-0">Tasa de Cambio</p>
-                            </div>
-                          </div>
-                          <div className="input-group mt-2">
-                            <span className="input-group-text"><FaEuroSign /></span>
-                            <input
-                              type="number"
-                              name="cur_EurToBs"
-                              value={currencyPrices.cur_EurToBs}
-                              onChange={handleInputChange}
-                              className="form-control"
-                              placeholder="Ingrese tasa EUR a Bs"
-                            />
-                          </div>
-                        </div>
-                        {/* EUR a USD */}
-                        <div className="col-lg-4 col-md-6 col-sm-12">
-                          <div className="d-flex align-items-center">
-                            <div className="icon icon-shape bg-gradient-primary text-white rounded-circle shadow">
-                              <FaChartBar size={24} />
-                            </div>
-                            <div className="ms-3">
-                              <h6 className="mb-0">EUR a USD</h6>
-                              <p className="text-sm text-muted mb-0">Tasa de Cambio</p>
-                            </div>
-                          </div>
-                          <div className="input-group mt-2">
-                            <span className="input-group-text"><FaDollarSign /></span>
-                            <input
-                              type="number"
-                              name="cur_EurToUsd"
-                              value={currencyPrices.cur_EurToUsd}
-                              onChange={handleInputChange}
-                              className="form-control"
-                              placeholder="Ingrese tasa EUR a USD"
-                            />
-                          </div>
-                        </div>
-                        {/* USD a Bs */}
-                        <div className="col-lg-4 col-md-6 col-sm-12">
-                          <div className="d-flex align-items-center">
-                            <div className="icon icon-shape bg-gradient-primary text-white rounded-circle shadow">
-                              <FaChartPie size={24} />
-                            </div>
-                            <div className="ms-3">
-                              <h6 className="mb-0">USD a Bs</h6>
-                              <p className="text-sm text-muted mb-0">Tasa de Cambio</p>
-                            </div>
-                          </div>
-                          <div className="input-group mt-2">
-                            <span className="input-group-text"><FaDollarSign /></span>
-                            <input
-                              type="number"
-                              name="cur_UsdToBs"
-                              value={currencyPrices.cur_UsdToBs}
-                              onChange={handleInputChange}
-                              className="form-control"
-                              placeholder="Ingrese tasa USD a Bs"
-                            />
-                          </div>
-                        </div>
-                        {/* EUR a USD Panameño */}
-                        <div className="col-lg-4 col-md-6 col-sm-12 mt-3">
-                          <div className="d-flex align-items-center">
-                            <div className="icon icon-shape bg-gradient-primary text-white rounded-circle shadow">
-                              <FaMoneyBillWave size={24} />
-                            </div>
-                            <div className="ms-3">
-                              <h6 className="mb-0">Eur a USD Panameño</h6>
-                              <p className="text-sm text-muted mb-0">Tasa de Cambio</p>
-                            </div>
-                          </div>
-                          <div className="input-group mt-2">
-                            <span className="input-group-text"><FaPoundSign /></span>
-                            <input
-                              type="number"
-                              name="cur_EurToUsd_Pa"
-                              value={currencyPrices.cur_EurToUsd_Pa}
-                              onChange={handleInputChange}
-                              className="form-control"
-                              placeholder="Ingrese tasa EUR a USD Panameño"
-                            />
-                          </div>
-                        </div>
-                        {/* EUR a USD Ecuatoriano */}
-                        <div className="col-lg-4 col-md-6 col-sm-12 mt-3">
-                          <div className="d-flex align-items-center">
-                            <div className="icon icon-shape bg-gradient-primary text-white rounded-circle shadow">
-                              <FaChartLine size={24} />
-                            </div>
-                            <div className="ms-3">
-                              <h6 className="mb-0">EUR a USD Ecuatoriano</h6>
-                              <p className="text-sm text-muted mb-0">Tasa de Cambio</p>
-                            </div>
-                          </div>
-                          <div className="input-group mt-2">
-                            <span className="input-group-text"><FaDollarSign /></span>
-                            <input
-                              type="number"
-                              name="cur_EurToUsd_Ecu"
-                              value={currencyPrices.cur_EurToUsd_Ecu}
-                              onChange={handleInputChange}
-                              className="form-control"
-                              placeholder="Ingrese tasa EUR a USD Ecuatoriano"
-                            />
-                          </div>
-                        </div>
-                        {/* EUR a Soles */}
-                        <div className="col-lg-4 col-md-6 col-sm-12 mt-3">
-                          <div className="d-flex align-items-center">
-                            <div className="icon icon-shape bg-gradient-primary text-white rounded-circle shadow">
-                              <FaCoins size={24} />
-                            </div>
-                            <div className="ms-3">
-                              <h6 className="mb-0">EUR a Soles</h6>
-                              <p className="text-sm text-muted mb-0">Tasa de Cambio</p>
-                            </div>
-                          </div>
-                          <div className="input-group mt-2">
-                            <span className="input-group-text"><FaYenSign /></span>
-                            <input
-                              type="number"
-                              name="cur_EurToSol_Pe"
-                              value={currencyPrices.cur_EurToSol_Pe}
-                              onChange={handleInputChange}
-                              className="form-control"
-                              placeholder="Ingrese tasa EUR a Soles"
-                            />
-                          </div>
-                        </div>
-                        {/* USD a Pesos Chilenos */}
-                        <div className="col-lg-4 col-md-6 col-sm-12 mt-3">
-                          <div className="d-flex align-items-center">
-                            <div className="icon icon-shape bg-gradient-primary text-white rounded-circle shadow">
-                              <FaMoneyCheckAlt size={24} />
-                            </div>
-                            <div className="ms-3">
-                              <h6 className="mb-0">USD a Pesos Chilenos</h6>
-                              <p className="text-sm text-muted mb-0">Tasa de Cambio</p>
-                            </div>
-                          </div>
-                          <div className="input-group mt-2">
-                            <span className="input-group-text"><FaYenSign /></span>
-                            <input
-                              type="number"
-                              name="cur_EurToPes_Ch"
-                              value={currencyPrices.cur_EurToPes_Ch}
-                              onChange={handleInputChange}
-                              className="form-control"
-                              placeholder="Ingrese tasa USD a Pesos Chilenos"
-                            />
-                          </div>
+                <div className="content">
+                  <div className="container-fluid py-4">
+                    <div className="card my-4" style={{ width: "100%" }}>
+                      <div className="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                        <div className="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                          <h6 className="text-white text-capitalize ps-3">
+                            Tasas de Cambio
+                          </h6>
                         </div>
                       </div>
-                      <div className="text-center">
-                        <button onClick={handleSaveChanges} className="btn btn-success mt-4">Guardar Cambios</button>
+                      <div className="card-body px-3 pb-2">
+                        <div className="row mb-3">
+                          <div className="col-lg-4 col-md-6 col-sm-12">
+                            <div className="d-flex align-items-center">
+                              <div className="icon icon-shape bg-gradient-primary text-white rounded-circle shadow">
+                                <FaCoins size={24} />
+                              </div>
+                              <div className="ms-3">
+                                <h6 className="mb-0">EUR a Bs</h6>
+                                <p className="text-sm text-muted mb-0">
+                                  Tasa de Cambio
+                                </p>
+                              </div>
+                            </div>
+                            <div className="input-group mt-2">
+                              <span className="input-group-text">
+                                <FaEuroSign />
+                              </span>
+                              <input
+                                type="number"
+                                className="form-control"
+                                placeholder="Ingrese tasa EUR a Bs"
+                              />
+                            </div>
+                          </div>
+                          <div className="col-lg-4 col-md-6 col-sm-12">
+                            <div className="d-flex align-items-center">
+                              <div className="icon icon-shape bg-gradient-primary text-white rounded-circle shadow">
+                                <FaChartBar size={24} />
+                              </div>
+                              <div className="ms-3">
+                                <h6 className="mb-0">EUR a USD</h6>
+                                <p className="text-sm text-muted mb-0">
+                                  Tasa de Cambio
+                                </p>
+                              </div>
+                            </div>
+                            <div className="input-group mt-2">
+                              <span className="input-group-text">
+                                <FaDollarSign />
+                              </span>
+                              <input
+                                type="number"
+                                className="form-control"
+                                placeholder="Ingrese tasa EUR a USD"
+                              />
+                            </div>
+                          </div>
+                          <div className="col-lg-4 col-md-6 col-sm-12">
+                            <div className="d-flex align-items-center">
+                              <div className="icon icon-shape bg-gradient-primary text-white rounded-circle shadow">
+                                <FaChartPie size={24} />
+                              </div>
+                              <div className="ms-3">
+                                <h6 className="mb-0">USD a Bs</h6>
+                                <p className="text-sm text-muted mb-0">
+                                  Tasa de Cambio
+                                </p>
+                              </div>
+                            </div>
+                            <div className="input-group mt-2">
+                              <span className="input-group-text">
+                                <FaDollarSign />
+                              </span>
+                              <input
+                                type="number"
+                                className="form-control"
+                                placeholder="Ingrese tasa USD a Bs"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-center">
+                          <button className="btn btn-success mt-4">
+                            Guardar Cambios
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
             )}
-
 
             {/* User Verificated */}
             {activeItem === "Usuarios verificados" && (
@@ -1922,7 +1771,7 @@ function Dashboard() {
                                     <td className="align-middle text-center text-sm">
                                       <span className={`badge badge-sm`}>
                                         {user.use_verif === "s" ||
-                                          user.use_verif === "S" ? (
+                                        user.use_verif === "S" ? (
                                           <AiOutlineCheckCircle
                                             style={{
                                               color: "green",
