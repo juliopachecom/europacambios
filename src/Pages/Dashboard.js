@@ -51,6 +51,7 @@ import { FaBars, FaArrowDown, FaArrowUp, FaClock } from "react-icons/fa";
 import { clearLocalStorage } from "../Hooks/useLocalStorage";
 import { toast, ToastContainer } from "react-toastify";
 
+
 function Dashboard() {
   const { url, infoTkn, search } = useDataContext();
   const [searchQuery, setSearchQuery] = useState("");
@@ -246,7 +247,64 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
   const [selectedUser, setSelectedUser] = useState(null);
 
   const [modalImageUser, setModalImageUser] = useState(false);
-  const toggleImageUser = () => setModalImageUser(!modalImageUser);
+  const toggleImageUser = () => setModalImageUser(!modalImageUser); 
+  const [currencyPrices, setCurrencyPrices] = useState({
+    cur_EurToBs: 0,
+    cur_EurToUsd: 0,
+    cur_UsdToBs: 0,
+    cur_EurToUsd_Pa: 0,
+    cur_EurToUsd_Ecu: 0,
+    cur_EurToSol_Pe: 0,
+    cur_EurToPes_Ch: 0
+  });
+  const [curId, setCurId] = useState(null);
+
+  const fetchCurrencyData = useCallback(async () => {
+    try {
+      const response = await axios.get(`${url}/currencyPrice`);
+      if (response.data && response.data.length > 0) {
+        setCurId(response.data[0].cur_id);
+        setCurrencyPrices({
+          cur_EurToBs: response.data[0].cur_EurToBs,
+          cur_EurToUsd: response.data[0].cur_EurToUsd,
+          cur_UsdToBs: response.data[0].cur_UsdToBs,
+          cur_EurToUsd_Pa: response.data[0].cur_EurToUsd_Pa,
+          cur_EurToUsd_Ecu: response.data[0].cur_EurToUsd_Ecu,
+          cur_EurToSol_Pe: response.data[0].cur_EurToSol_Pe,
+          cur_EurToPes_Ch: response.data[0].cur_EurToPes_Ch
+        });
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }, [url]);
+
+  useEffect(() => {
+    fetchCurrencyData();
+  }, [fetchCurrencyData]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setCurrencyPrices(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
+  };
+
+  const handleSaveChanges = async () => {
+    if (curId === null) {
+      alert('No se pudo encontrar el ID de la moneda.');
+      return;
+    }
+
+    try {
+      await axios.put(`${url}/currencyPrice/${curId}`, currencyPrices);
+      alert('Cambios guardados con éxito');
+    } catch (error) {
+      console.error(error);
+      alert('Error al guardar los cambios');
+    }
+  };
 
   const [modal, setModal] = useState(false);
   const toggle = () => {

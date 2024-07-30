@@ -56,6 +56,18 @@ function Changes() {
     }
   }, [setCurrencyPrice, url]);
 
+
+  const fetchCurrencyData = useCallback(async () => {
+    try {
+      const response = await axios.get(`${url}/currencyPrice`);
+      setCurrencyPrice(response.data); // Asegúrate de que esto se está estableciendo correctamente
+    } catch (error) {
+      console.log(error);
+    }
+  }, [setCurrencyPrice, url]);
+
+
+
   const clearLocal = () => {
     clearLocalStorage();
     setTimeout(() => {
@@ -298,6 +310,7 @@ function Changes() {
                           </td>
                         </tr>
                       </tbody>
+
                     </Table>
                   </div>
                 </Col>
@@ -452,8 +465,8 @@ function Changes() {
                           user.use_verif === "N"
                             ? toggleModal
                             : user.use_verif === "E"
-                            ? toggleFifthModal
-                            : clearLocal
+                              ? toggleFifthModal
+                              : clearLocal
                         }
                       >
                         Recargar
@@ -464,8 +477,8 @@ function Changes() {
                           user.use_verif === "N"
                             ? toggleModal
                             : user.use_verif === "E"
-                            ? toggleFifthModal
-                            : clearLocal
+                              ? toggleFifthModal
+                              : clearLocal
                         }
                       >
                         Enviar Remesa
