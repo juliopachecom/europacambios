@@ -21,7 +21,7 @@ function Footer() {
           <h3>Enlaces de interes</h3>
           <ul className="list">
             <li><Link to='/'>Inicio</Link></li>
-            <li><Link to='/'>Faqs</Link></li>
+            <li><Link to='/Faqs'>Preguntas Frecuentes</Link></li>
             <li><Link to='/Register'>Registro</Link></li>
             <li><Link to='/Login'>Inicio de sesion</Link></li>
             <li><Link to='/TermsAndConditions'>Terminos y Condiciones</Link></li>
@@ -31,10 +31,10 @@ function Footer() {
         <div className="footer-content">
           <h3>Redes Sociales</h3>
           <ul className="social-icons">
-          <a href="https://wa.me/624377261">  <li><FontAwesomeIcon icon={faWhatsapp} /></li></a> 
+          <a href="https://wa.me/+34624377261">  <li><FontAwesomeIcon icon={faWhatsapp} /></li></a> 
             <a href="https://facebook.com/p/europacambiosve-100088844974530/"> <li><FontAwesomeIcon icon={faFacebook} /></li></a>
             <a href="https://www.instagram.com/europacambiosve/"><li><FontAwesomeIcon icon={faInstagram} /></li></a>
-            <a href="https://x/europacambiosve"><li><FontAwesomeIcon icon={faXTwitter}/></li></a>
+            <a href="https://x.com/europacambiosve"><li><FontAwesomeIcon icon={faXTwitter}/></li></a>
           </ul>
         </div>
       </div>

@@ -4,6 +4,8 @@ import { FaExchangeAlt, FaSpinner, FaExclamationTriangle } from 'react-icons/fa'
 import { useDataContext } from "../Context/dataContext";
 import flagEurope from '../Assets/Images/union-europea.png';
 import flagVenezuela from '../Assets/Images/venezuelaflag.png';
+import { Link } from 'react-router-dom';
+
 
 function CurrencyCalculator() {
   const { infoTkn, url } = useDataContext();
@@ -14,28 +16,28 @@ function CurrencyCalculator() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchExchangeRate = async () => {
-      try {
-        const response = await axios.get(`${url}/CurrencyPrice`, {
-          headers: {
-            Authorization: `Bearer ${infoTkn}`,
-          },
-        });
-        const data = response.data;
+      const fetchExchangeRate = async () => {
+        try {
+          const response = await axios.get(`${url}/CurrencyPrice`, {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,
+            },
+          });
+          const data = response.data;
 
-        const rateData = data.find((item) => item.cur_id === 3);
-        if (rateData) {
-          setExchangeRate(rateData.cur_EurToBs);
-        } else {
-          setError('Tasa de cambio no encontrada para el cur_id 3');
+          const rateData = data.find((item) => item.cur_id === 1);
+          if (rateData) {
+            setExchangeRate(rateData.cur_EurToBs);
+          } else {
+            setError('Tasa de cambio no encontrada para el cur_id 1');
+          }
+          setLoading(false);
+        } catch (error) {
+          console.error('Error fetching exchange rate', error);
+          setError('Error fetching exchange rate');
+          setLoading(false);
         }
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching exchange rate', error);
-        setError('Error fetching exchange rate');
-        setLoading(false);
-      }
-    };
+      };
 
     fetchExchangeRate();
   }, [infoTkn, url]);
@@ -82,7 +84,7 @@ function CurrencyCalculator() {
         <FaExchangeAlt className="exchange-icon" />
         <p className="rate-text">Tasa de cambio: <span className="rate-value">1 EUR = {exchangeRate} VES</span></p>
       </div>
-      <button>Enviar ahora</button>
+      <Link to='/Login'><button>Enviar ahora</button></Link>
     </div>
   );
 }

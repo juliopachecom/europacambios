@@ -12,6 +12,7 @@ import Ecuador from "../Assets/Images/Ecuador.png";
 import Colombia from "../Assets/Images/Colombia.png";
 import Chile from "../Assets/Images/Chile.png";
 import { CurrencyCalculator } from "../Components/CurrencyCalculator";
+import { WhatsAppButton } from "../Components/whatsapp";
 import { FaSmile, FaMoneyBillWave, FaExchangeAlt, FaRocket, FaDollarSign, FaRegSmile, FaCheckCircle, FaRegClock } from "react-icons/fa";
 import { Link } from 'react-router-dom';
 
@@ -21,13 +22,13 @@ function Home() {
   const cardRefs = useRef({});
 
   const bankData = {
-    Venezuela: ['Banco de Venezuela', 'Mercantil', 'Banesco'],
-    Colombia: ['Bancolombia', 'Banco de Bogotá', 'Davivienda'],
-    EEUU: ['Bank of America', 'Chase', 'Wells Fargo'],
-    Ecuador: ['Banco Pichincha', 'Produbanco', 'Banco de Guayaquil'],
-    Peru: ['Banco de Crédito del Perú', 'Interbank', 'Scotiabank'],
-    Panama: ['Banco General', 'Caja de Ahorros', 'Banistmo'],
-    Chile: ['Banco de Chile', 'BancoEstado', 'Santander'],
+    Venezuela: ['Todos los bancos', 'Pago movil'],
+    Colombia: ['Bancolombia', 'Nequi', 'Davivienda', 'Daviplata'],
+    EEUU: ['De Euros a Dolares por Bank of America O zelle', 'De dólares a Bolívares todos los bancos en Venezuela o Pago móvil'],
+    Ecuador: ['Banco Pichincha', 'Banco del pacifico', 'Produbanco'],
+    Peru: ['Credit bank of perú', 'Banco de crédito', 'Interbank', 'Yape', 'BBVA'],
+    Panama: ['Banesco', 'Banco general Panamá', 'Banistmo'],
+    Chile: ['Banco de falabella', 'Banco de Chile', 'Banco de falabella'],
   };
 
   const handleCardClick = (country, event) => {
@@ -97,6 +98,7 @@ function Home() {
 
   return (
     <div className="Home">
+      <WhatsAppButton />
       <h1 className="reveal">
         <span style={{ fontWeight: "600", color: "#70A83B" }}>EUROPA</span>
         <span style={{ fontWeight: "600", color: "#727176" }}>CAMBIOS</span>

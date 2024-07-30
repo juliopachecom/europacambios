@@ -12,6 +12,9 @@
 @use 'FixedAlert';
 @use 'CurrencyCalculator';
 @use 'TermnsAndConditions';
+@use 'Faqs';
+@use 'whatsapp';
+@use 'NotFound';
 
 *{
     box-sizing: border-box;

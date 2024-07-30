@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from 'axios';
+import axios from "axios";
 import { useHistory, Link } from "react-router-dom";
 import {
   Form,
@@ -8,11 +8,13 @@ import {
   Button,
   InputGroup,
   InputGroupText,
-  FormFeedback
+  FormFeedback,
 } from "reactstrap";
 import { FaUser, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
+import { Oval } from "react-loader-spinner"; // Importar el spinner
 import LogoSimple from "../Assets/Images/Logo-Simple.png";
-import { useDataContext } from '../Context/dataContext';
+import { useDataContext } from "../Context/dataContext";
+import { toast, ToastContainer } from "react-toastify";
 
 function Login() {
   const history = useHistory();
@@ -22,36 +24,43 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [attemps, setAttemps] = useState(3);
-  const [tkn, setTkn] = useState('');
+  const [tkn, setTkn] = useState("");
   const [alertVisible, setAlertVisible] = useState(false);
   const [touched, setTouched] = useState({
     user: false,
-    password: false
+    password: false,
   });
+  const [loading, setLoading] = useState(false); // Estado para la carga
 
   const fetchData = async (email, password) => {
     try {
-      const response = await axios.get(`${url}/Auth/login/${email}/${password}`);
-      // console.log(response)
+      const response = await axios.get(
+        `${url}/Auth/login/${email}/${password}`
+      );
       setInfoTkn(response.data.data.access_token);
-      const response2 = await axios.get(`${url}/Auth/findByToken/${response.data.data.access_token}`);
+      const response2 = await axios.get(
+        `${url}/Auth/findByToken/${response.data.data.access_token}`
+      );
       setTkn(response2.data);
       setLogged(true);
       history.push({
         pathname: "/Changes",
         state: {
           user: tkn,
-        }
+        },
       });
-      return true; 
+      return true;
     } catch (error) {
-      console.log(error);
-      return false; 
+      toast.error(
+        "Ocurrió un error durante el inicio de sesión. Por favor, verifica los datos e intenta nuevamente."
+      );
+      return false;
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); // Inicia el estado de carga
 
     try {
       const success = await fetchData(user, password);
@@ -65,10 +74,14 @@ function Login() {
         setAttemps(0);
       } else {
         setAttemps(attemps - 1);
-        const errorMessage = `Correo o contraseña incorrectos. Inténtalo de nuevo. Intentos restantes: ${attemps - 1}`;
+        const errorMessage = `Correo o contraseña incorrectos. Inténtalo de nuevo. Intentos restantes: ${
+          attemps - 1
+        }`;
         setError(errorMessage);
         setAlertVisible(true);
       }
+    } finally {
+      setLoading(false); // Finaliza el estado de carga
     }
   };
 
@@ -78,16 +91,16 @@ function Login() {
 
   const handleChange = (field, value) => {
     switch (field) {
-      case 'user':
+      case "user":
         setUser(value);
         break;
-      case 'password':
+      case "password":
         setPassword(value);
         break;
       default:
         break;
     }
-    setTouched(prev => ({ ...prev, [field]: true }));
+    setTouched((prev) => ({ ...prev, [field]: true }));
   };
 
   return (
@@ -108,11 +121,13 @@ function Login() {
                   name="user"
                   value={user}
                   placeholder="Correo"
-                  onChange={(e) => handleChange('user', e.target.value)}
-                  onBlur={() => setTouched(prev => ({ ...prev, user: true }))}
+                  onChange={(e) => handleChange("user", e.target.value)}
+                  onBlur={() => setTouched((prev) => ({ ...prev, user: true }))}
                   invalid={touched.user && !user}
                 />
-                <FormFeedback>{touched.user && !user ? "Este campo es obligatorio" : ""}</FormFeedback>
+                <FormFeedback>
+                  {touched.user && !user ? "Este campo es obligatorio" : ""}
+                </FormFeedback>
               </InputGroup>
             </FormGroup>
 
@@ -127,14 +142,20 @@ function Login() {
                   name="password"
                   placeholder="Contraseña"
                   value={password}
-                  onChange={(e) => handleChange('password', e.target.value)}
-                  onBlur={() => setTouched(prev => ({ ...prev, password: true }))}
+                  onChange={(e) => handleChange("password", e.target.value)}
+                  onBlur={() =>
+                    setTouched((prev) => ({ ...prev, password: true }))
+                  }
                   invalid={touched.password && password.length < 8}
                 />
                 <InputGroupText onClick={togglePasswordVisibility}>
                   {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </InputGroupText>
-                <FormFeedback>{touched.password && password.length < 8 ? "La contraseña debe tener al menos 8 caracteres" : ""}</FormFeedback>
+                <FormFeedback>
+                  {touched.password && password.length < 8
+                    ? "La contraseña debe tener al menos 8 caracteres"
+                    : ""}
+                </FormFeedback>
               </InputGroup>
             </FormGroup>
 
@@ -144,12 +165,8 @@ function Login() {
               <Link className="font-italic isai5" to="/Recover">
                 Olvidé mi contraseña
               </Link>
-              <Button
-                type="submit"
-                color="primary"
-                className="btn"
-              >
-                INICIAR SESIÓN
+              <Button type="submit" color="primary" className="btn" disabled={loading}>
+                {loading ? <Oval height={20} width={20} color="#fff" /> : "INICIAR SESIÓN"}
               </Button>
               <Link className="font-italic isai5" to="/Register">
                 ¿Aún no tienes cuenta? Regístrate
@@ -158,6 +175,16 @@ function Login() {
           </Form>
         </div>
       </div>
+      <ToastContainer
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   );
 }

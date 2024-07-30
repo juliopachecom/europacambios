@@ -13,9 +13,7 @@ import {
   Label,
   Input,
 } from "reactstrap";
-// import arrowup from "../Assets/Images/arrowup.png";
-// import arrowdown from "../Assets/Images/arrowdown.png";
-// import clock from "../Assets/Images/clock.png";
+import { WhatsAppButton } from "../Components/whatsapp";
 import bolivares from "../Assets/Images/bolivar.png";
 import VerificationImage from "../Assets/Images/warning.png";
 import dniverify from "../Assets/Images/dniverify.jpeg";
@@ -24,8 +22,8 @@ import { Link } from "react-router-dom";
 // import { clearLocalStorage } from "../Hooks/useLocalStorage";
 import { FixeedAlert } from "../Components/FixeedAlert";
 import { clearLocalStorage } from "../Hooks/useLocalStorage";
-import { FaExclamationCircle, FaInfoCircle, FaWhatsapp } from 'react-icons/fa';
-
+import { FaExclamationCircle, FaInfoCircle, FaWhatsapp } from "react-icons/fa";
+import { toast, ToastContainer } from "react-toastify";
 
 function Changes() {
   const { logged, infoTkn, url } = useDataContext();
@@ -45,9 +43,18 @@ function Changes() {
   const [use_imgDni, setUseImgDni] = useState("");
   const [termsCheckbox, setTermsCheckbox] = useState(false);
   const [modal, setModal] = useState(false);
+  const [currencyPrice, setCurrencyPrice] = useState([]);
 
   const toggle = () => setModal(!modal);
 
+  const fetchCurrencyData = useCallback(async () => {
+    try {
+      const response = await axios.get(`${url}/currencyPrice`);
+      setCurrencyPrice(response.data); // Asegúrate de que esto se está estableciendo correctamente
+    } catch (error) {
+      console.log(error);
+    }
+  }, [setCurrencyPrice, url]);
 
   const clearLocal = () => {
     clearLocalStorage();
@@ -112,10 +119,10 @@ function Changes() {
           "Content-Type": "multipart/form-data",
         },
       });
-
-      console.log("Request edit successfully");
+      axios.post(`${url}/Mailer/EmailPending/${user.use_email}`);
+      toast.success("Acción realizada con éxito!");
     } catch (error) {
-      console.error("Error:", error);
+      toast.error("Error al intentar realizar la acción.");
     }
   };
 
@@ -141,29 +148,29 @@ function Changes() {
       handleSubmitVerifyDni();
       toggleSecondModal();
 
-      console.log("Request edit successfully");
     } catch (error) {
-      console.error("Error:", error);
+      toast.error("Error al intentar realizar la acción.");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    fetchCurrencyData();
     fetchDataUser();
-  }, [fetchDataUser]);
+  }, [fetchCurrencyData, fetchDataUser]);
 
   return (
     <div className="Changes container px-5 py-4 my-5">
+            <WhatsAppButton />
       <Row>{/* Placeholder for potential content */}</Row>
       {logged ? (
         user.use_verif === "S" ? (
-<Row>
+          <Row>
             <Col md="12">
               <Row>
                 <Col md="6" className="d-flex flex-column h-110">
                   <div className="p-4 d-flex flex-column purple-bg-color round-corner h-100 justify-content-between text-center">
-                   
                     <div>
                       <span className="text-uppercase font-25 weight-600 white-color-2">
                         <strong>Hola {user.use_name}</strong>
@@ -187,17 +194,13 @@ function Changes() {
                     <div className="d-flex flex-row mt-4">
                       <Button
                         className="flex-grow-1 me-1 py-2 text-uppercase font-12 weight-700 purple-color-2 grey-bg-color"
-                        onClick={
-                          toggle
-                        }
+                        onClick={toggle}
                       >
                         Recargar
                       </Button>
                       <Button
                         className="flex-grow-1 ms-1 py-2 text-uppercase font-12 weight-700 white-color orange-bg-color"
-                        onClick={
-                          toggle
-                        }
+                        onClick={toggle}
                       >
                         Enviar Remesa
                       </Button>
@@ -252,7 +255,7 @@ function Changes() {
                                 <span className="font-14 weight-700 purple-color-2">
                                   Euros
                                 </span>
-                                <span className="font-10 weight-400 purple-color-2">
+                                <span className="font-10 weight-500 purple-color-2">
                                   Bolivares
                                 </span>
                               </div>
@@ -261,11 +264,13 @@ function Changes() {
                           <td className="align-middle text-end">
                             <div className="d-flex flex-column align-items-end">
                               <span className="font-14 weight-700 purple-color-2">
-                                39.8
+                                {currencyPrice.length > 0
+                                  ? currencyPrice[0].cur_EurToBs
+                                  : "N/A"}
                               </span>
                             </div>
                           </td>
-                        </tr>
+                        </tr> 
                         <tr>
                           <td className="align-middle">
                             <div className="d-flex flex-row">
@@ -274,10 +279,10 @@ function Changes() {
                               </div>
                               <div className="d-flex flex-column ps-2">
                                 <span className="font-14 weight-700 purple-color-2">
-                                  Euros
-                                </span>
-                                <span className="font-10 weight-400 purple-color-2">
                                   Dolares
+                                </span>
+                                <span className="font-10 weight-500 purple-color-2">
+                                  Bolivares
                                 </span>
                               </div>
                             </div>
@@ -285,7 +290,9 @@ function Changes() {
                           <td className="align-middle text-end">
                             <div className="d-flex flex-column align-items-end">
                               <span className="font-14 weight-700 purple-color-2">
-                                0.92
+                                {currencyPrice.length > 0
+                                  ? currencyPrice[0].cur_UsdToBs
+                                  : "N/A"}
                               </span>
                             </div>
                           </td>
@@ -303,7 +310,10 @@ function Changes() {
                         <th className="text-uppercase font-10 weight-600 grey-color-2">
                           Ultimos Movimientos
                         </th>
-                        <th className="text-uppercase font-10 weight-600 purple-color-2 text-end" style={{cursor: 'pointer'}}>
+                        <th
+                          className="text-uppercase font-10 weight-600 purple-color-2 text-end"
+                          style={{ cursor: "pointer" }}
+                        >
                           Ver todos
                         </th>
                       </tr>
@@ -405,7 +415,8 @@ function Changes() {
                 </Col>
               </Row>
             </Col>
-          </Row>        ) : (
+          </Row>
+        ) : (
           <Row>
             <Col md="12">
               <Row>
@@ -510,7 +521,7 @@ function Changes() {
                                 <span className="font-14 weight-700 purple-color-2">
                                   Euros
                                 </span>
-                                <span className="font-10 weight-400 purple-color-2">
+                                <span className="font-10 weight-500 purple-color-2">
                                   Bolivares
                                 </span>
                               </div>
@@ -519,7 +530,9 @@ function Changes() {
                           <td className="align-middle text-end">
                             <div className="d-flex flex-column align-items-end">
                               <span className="font-14 weight-700 purple-color-2">
-                                39.8
+                                {currencyPrice.length > 0
+                                  ? currencyPrice[0].cur_EurToBs
+                                  : "N/A"}
                               </span>
                             </div>
                           </td>
@@ -532,10 +545,10 @@ function Changes() {
                               </div>
                               <div className="d-flex flex-column ps-2">
                                 <span className="font-14 weight-700 purple-color-2">
-                                  Euros
-                                </span>
-                                <span className="font-10 weight-400 purple-color-2">
                                   Dolares
+                                </span>
+                                <span className="font-10 weight-500 purple-color-2">
+                                  Bolivares
                                 </span>
                               </div>
                             </div>
@@ -543,7 +556,9 @@ function Changes() {
                           <td className="align-middle text-end">
                             <div className="d-flex flex-column align-items-end">
                               <span className="font-14 weight-700 purple-color-2">
-                                0.92
+                                {currencyPrice.length > 0
+                                  ? currencyPrice[0].cur_UsdToBs
+                                  : "N/A"}
                               </span>
                             </div>
                           </td>
@@ -561,7 +576,10 @@ function Changes() {
                         <th className="text-uppercase font-10 weight-600 grey-color-2">
                           Ultimos Movimientos
                         </th>
-                        <th className="text-uppercase font-10 weight-600 purple-color-2 text-end" style={{cursor: 'pointer'}}>
+                        <th
+                          className="text-uppercase font-10 weight-600 purple-color-2 text-end"
+                          style={{ cursor: "pointer" }}
+                        >
                           Ver todos
                         </th>
                       </tr>
@@ -668,22 +686,27 @@ function Changes() {
       ) : (
         <h1>Debes iniciar sesión para ver esta página</h1>
       )}
- <Modal isOpen={modal} toggle={toggle} centered>
-          <ModalHeader toggle={toggle}>
-            <FaInfoCircle /> Información
-          </ModalHeader>
-          <ModalBody className="text-center">
-            Los cambios estarán próximamente habilitados. Mantente informado.
-            <br />
-            Puedes realizar los cambios por 
-            <Link to="https://wa.me/624377261" target="_blank" className="whatsapp-btn">
-              <FaWhatsapp /> WhatsApp
-            </Link>
-          </ModalBody>
-          <ModalFooter>
-            <Button color="secondary" onClick={toggle}>Cerrar</Button>
-          </ModalFooter>
-        </Modal>
+      <Modal isOpen={modal} toggle={toggle} centered>
+        <ModalHeader toggle={toggle}>
+          <FaInfoCircle /> Información
+        </ModalHeader>
+        <ModalBody className="text-center">
+          Los cambios estarán próximamente habilitados. Mantente informado.
+          <br />
+          Puedes realizar los cambios por medio de           <br />
+          <a
+            href="https://wa.me/+34624377261"
+            className="whatsapp-btn"
+          >
+            <FaWhatsapp />    WhatsApp
+          </a>
+        </ModalBody>
+        <ModalFooter>
+          <Button color="secondary" onClick={toggle}>
+            Cerrar
+          </Button>
+        </ModalFooter>
+      </Modal>
 
       {/* Modal para verificación */}
       <Modal
@@ -860,13 +883,6 @@ function Changes() {
 
             <Button
               type="submit"
-              disabled={
-                !termsCheckbox ||
-                use_dni === "" ||
-                use_phone === "" ||
-                use_img === "" ||
-                use_imgDni === ""
-              }
               className="btn col-md-12"
               color="success"
             >
@@ -898,6 +914,7 @@ function Changes() {
           </div>
         </ModalBody>
       </Modal>
+      <ToastContainer autoClose={5000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
     </div>
   );
 }

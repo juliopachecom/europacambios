@@ -11,13 +11,14 @@ import {
   FormFeedback,
 } from "reactstrap";
 import { FaLock } from "react-icons/fa";
+import { Oval } from "react-loader-spinner"; // Importar el componente de carga
 import LogoSimple from "../Assets/Images/Logo-Simple.png";
 import { useDataContext } from "../Context/dataContext";
 import { toast, ToastContainer } from "react-toastify"; 
 
 function RecoverUpdate() {
   const history = useHistory();
-  const [userEmail, setUserEmail] = useState([]);
+  const [userEmail, setUserEmail] = useState({});
   const [use_password, setUse_Password] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -50,7 +51,7 @@ function RecoverUpdate() {
         history.push("/Login");
       }, 2000);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast.error("Error al recuperar la contraseña. Por favor, intenta nuevamente.");
     } finally {
       setLoading(false);
@@ -62,7 +63,7 @@ function RecoverUpdate() {
       const response = await axios.get(`${url}/Users/email/${email}`);
       setUserEmail(response.data);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   }, [email, url]);
 
@@ -127,13 +128,14 @@ function RecoverUpdate() {
                 type="submit"
                 color="primary"
                 disabled={
+                  loading ||  // Deshabilitar botón si está cargando
                   use_password !== confirmPassword ||
                   use_password.length < 8 ||
                   email !== userEmail.use_email ||
                   parseInt(id) !== userEmail.use_id
                 }
               >
-                {loading ? "Recuperando..." : "Recuperar"}
+                {loading ? <Oval height={20} width={20} color="#fff" /> : "Recuperar"} {/* Spinner o texto */}
               </Button>
             </div>
           </Form>

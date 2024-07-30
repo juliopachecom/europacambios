@@ -27,7 +27,7 @@ function NavBar() {
         <>
           <ul className="list">
             <li><Link to="/">Inicio</Link></li>
-            <li><Link to="#about">Nosotros</Link></li>
+            <li><Link to="/Faqs">Preguntas Frecuentes</Link></li>
             <li><a href="https://wa.me/624377261">Contacto</a></li>
             <li><Link to="/Login"><button className="SingIn">Iniciar Sesion</button></Link></li>
             <li><Link to="/Register"><button className="SingUp">Registro</button></Link></li>
@@ -40,7 +40,7 @@ function NavBar() {
       <>
         <ul className="list">
             <li><Link to="/">Inicio</Link></li>
-            <li><Link to="/Faqs">Faqs</Link></li>
+            <li><Link to="/Faqs">Preguntas Frecuentes</Link></li>
             <li><Link to="/Movements">Movimientos</Link></li>
             <li><Link to="/Changes"><button className="log-btn">Cambios</button></Link></li>
             <FiLogOut style={{ fontSize: '2em', marginTop: '.2em', color: '#409192', cursor: 'pointer' }} onClick={clearLocal} />

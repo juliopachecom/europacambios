@@ -9,16 +9,16 @@ function TermsAndConditions() {
         <section className="sectio n">
           <h2 className="section-title">1. IDENTIFICACIÓN</h2>
           <p>Titular: EuropaCambiosVE, S.L. (en adelante, “EUROPA CAMBIOS VE”)</p>
-          <p>Domicilio social: Camino de la suerte 15 28031 – Madrid (España)</p>
+          <p>Domicilio social: Camino de la suerte 28031 – Madrid (España)</p>
           <p>Datos de inscripción: Registro Mercantil de Madrid [*]</p>
           <p>CIF: Y6728405E</p>
-          <p>Teléfono: +346728405E</p>
+          <p>Teléfono: +34624377261</p>
           <p>E-mail: servicio@europacambiosve.com</p>
         </section>
 
         <section className="section">
           <h2 className="section-title">2. INFORMACIÓN</h2>
-          <p>Con la presente Política de Privacidad, el usuario (en adelante, el “Usuario”) es informado de manera clara que los datos personales que proporcione a través del sitio web <a href="https://europacambiosve.com/" target="_blank" rel="noopener noreferrer">https://europacambios.com/</a> (en adelante, el “Sitio Web”) y en entornos análogos como formularios, e-mails o números de contacto serán gestionados por EUROPA CAMBIOS VE conforme a lo estipulado en esta Política de Privacidad.</p>
+          <p>Con la presente Política de Privacidad, el usuario (en adelante, el “Usuario”) es informado de manera clara que los datos personales que proporcione a través del sitio web <a href="https://europacambiosve.com/" target="_blank" rel="noopener noreferrer">https://europacambiosve.com/</a> (en adelante, el “Sitio Web”) y en entornos análogos como formularios, e-mails o números de contacto serán gestionados por EUROPA CAMBIOS VE conforme a lo estipulado en esta Política de Privacidad.</p>
           <p>El Usuario debe leer detenidamente esta Política de Privacidad, redactada en un lenguaje claro y sencillo para facilitar su comprensión.</p>
         </section>
 
@@ -102,7 +102,7 @@ function TermsAndConditions() {
 
         <section className="section">
           <h2 className="section-title">11. EJERCICIO DE DERECHOS</h2>
-          <p>El Usuario puede enviar una solicitud a EUROPA CAMBIOS VE a la dirección indicada al principio de esta Política o por correo electrónico a usuarios@europacambios.com adjuntando una copia de su documento de identidad, para:</p>
+          <p>El Usuario puede enviar una solicitud a EUROPA CAMBIOS VE a la dirección indicada al principio de esta Política o por correo electrónico a usuarios@europacambiosve.com adjuntando una copia de su documento de identidad, para:</p>
           <ul>
             <li>Revocar consentimientos otorgados.</li>
             <li>Obtener confirmación sobre el tratamiento de sus datos.</li>

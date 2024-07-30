@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import axios from 'axios';
-import { useHistory, Link } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import LogoSimple from "../Assets/Images/Logo-Simple.png";
 import { useDataContext } from '../Context/dataContext';
+import { FaUser, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
+import { toast, ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css'; // Asegúrate de importar los estilos de react-toastify
 
 function AdmEc() {
   const history = useHistory();
@@ -30,7 +33,7 @@ function AdmEc() {
       });
       return true; 
     } catch (error) {
-      console.log(error);
+      toast.error("Ocurrió un error durante el inicio de sesión. Por favor, verifica los datos e intenta nuevamente.");
       return false; 
     }
   };
@@ -70,7 +73,7 @@ function AdmEc() {
 
             <div className="input-div one">
               <div className="i">
-                <i className="fas fa-user"></i>
+                <FaUser />
               </div>
               <div className="div">
                 <input
@@ -86,7 +89,7 @@ function AdmEc() {
             </div>
             <div className="input-div pass">
               <div className="i">
-                <i className="fas fa-lock"></i>
+                <FaLock />
               </div>
               <div className="div">
                 <input
@@ -107,26 +110,34 @@ function AdmEc() {
                 } verPassword`}
                 onClick={togglePasswordVisibility}
                 id="verPassword"
-              ></div>
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </div>
             </div>
             {alertVisible && <div className="alert">{error}</div>}
             <div className="text-center">
-              <Link className="font-italic isai5" to="/Recover">
-                Olvidé mi contraseña
-              </Link>
               <button
                 name="btningresar"
                 className="btn"
                 type="submit"
                 disabled={attemps === 0}
               >
-                {attemps === 0 ? <i className="fas fa-lock"></i> : null}
-                INICIAR SESION
+                INICIAR SESIÓN
               </button>
             </div>
           </form>
         </div>
       </div>
+      <ToastContainer
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   );
 }

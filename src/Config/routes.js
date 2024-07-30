@@ -7,6 +7,7 @@ import { Dashboard } from "../Pages/Dashboard";
 import { Changes } from "../Pages/Changes";
 import {TermsAndConditions} from "../Pages/TermsAndConditions";
 import {AdmEc} from "../Pages/AdmEc";
+import {FAQs} from "../Pages/Faqs";
 
 const routes = [
   {
@@ -45,15 +46,21 @@ const routes = [
     component: Changes,
   },
   {
-    title: "",
-    path: "/",
-    component: Home,
-  },
-  {
     title: "AdmEc",
     path: "/AdmEc",
     component: AdmEc,
   },
+  {
+    title: "FAQs",
+    path: "/Faqs",
+    component: FAQs,
+  },
+  {
+    title: "",
+    path: "/",
+    component: Home,
+  },
+  
 ];
 
 export default routes;

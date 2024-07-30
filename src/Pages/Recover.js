@@ -10,6 +10,7 @@ import {
   InputGroupText,
 } from "reactstrap";
 import { FaRegEnvelope } from "react-icons/fa";
+import { Oval } from "react-loader-spinner";  
 import LogoSimple from "../Assets/Images/Logo-Simple.png";
 import { useDataContext } from "../Context/dataContext";
 import { toast, ToastContainer } from "react-toastify";
@@ -23,7 +24,7 @@ function Recover() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      setLoading(true);
+      setLoading(true);  // Activar el estado de carga
       await axios.post(`${url}/Mailer/emailRecovery/${correo}`);
       setCorreo("");
       toast.success("¡Correo de recuperación enviado con éxito! Revisa tu bandeja de entrada.");
@@ -34,7 +35,7 @@ function Recover() {
       console.error("Error:", error);
       toast.error("Error al enviar el correo de recuperación. Por favor, intenta nuevamente.");
     } finally {
-      setLoading(false);
+      setLoading(false);  // Desactivar el estado de carga
     }
   };
 
@@ -68,8 +69,8 @@ function Recover() {
               <Link className="btn btn-secondary-custom" to="/Login">
                 Volver
               </Link>
-              <Button type="submit" color="primary" className="btn">
-                {loading ? "Enviando..." : "Recuperar"}
+              <Button type="submit" color="primary" className="btn" disabled={loading}>
+                {loading ? <Oval height={20} width={20} color="#fff" /> : "Recuperar"} {/* Spinner o texto */}
               </Button>
             </div>
           </Form>

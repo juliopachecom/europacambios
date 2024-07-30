@@ -1,4 +1,4 @@
-import React, { useState,useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { Link, Redirect, useHistory } from "react-router-dom";
 import {
@@ -18,6 +18,7 @@ import {
   FaEye,
   FaEyeSlash
 } from "react-icons/fa";
+import { Oval } from "react-loader-spinner";  
 import LogoSimple from "../Assets/Images/Logo-Simple.png";
 import { useDataContext } from "../Context/dataContext";
 import { toast, ToastContainer } from "react-toastify";
@@ -25,7 +26,7 @@ import { toast, ToastContainer } from "react-toastify";
 function Register() {
   const history = useHistory();
   const { logged, url } = useDataContext();
-  
+
   const [use_name, setUse_name] = useState("");
   const [use_lastName, setUse_lastName] = useState("");
   const [use_email, setUse_email] = useState("");
@@ -34,6 +35,7 @@ function Register() {
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);  // Estado para manejar la carga
 
   const [errors, setErrors] = useState({
     name: "",
@@ -100,6 +102,7 @@ function Register() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setIsLoading(true);  // Activar el estado de carga
 
     try {
       await axios.post(`${url}/Auth/register`, {
@@ -115,10 +118,12 @@ function Register() {
       await axios.post(`${url}/Mailer/EmailWelcome/${use_email}`);
 
       toast.success("¡Registro exitoso! Te hemos enviado un correo de bienvenida.");
-      setTimeout(() => history.push("/Login"), 2000); // Redirigir después de 2 segundos
+      setTimeout(() => history.push("/Login"), 2000);
     } catch (error) {
       console.error("Error:", error);
       toast.error("Ocurrió un error durante el registro. Por favor, intenta nuevamente.");
+    } finally {
+      setIsLoading(false);  // Desactivar el estado de carga
     }
   };
 
@@ -138,6 +143,7 @@ function Register() {
         <div className="register-content">
           <Form onSubmit={handleSubmit}>
             <img src={LogoSimple} alt="Europa Cambios" width={100} />
+            {/* Campos del formulario */}
 
             <FormGroup>
               <InputGroup>
@@ -266,6 +272,7 @@ function Register() {
               <Button
                 type="submit"
                 disabled={
+                  isLoading ||  // Deshabilitar el botón si está cargando
                   Object.values(errors).some(error => error) ||
                   !use_name ||
                   !use_lastName ||
@@ -276,7 +283,7 @@ function Register() {
                   !termsAccepted
                 }
               >
-                REGISTRAR
+                {isLoading ? <Oval height={20} width={20} /> : "REGISTRAR"} {/* Spinner o texto */}
               </Button>
             </div>
           </Form>
