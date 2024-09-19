@@ -45,12 +45,12 @@ import {
   FaMoneyCheckAlt,
   FaMoneyBillWave,
   FaPoundSign,
+  FaTrash,
 } from "react-icons/fa";
 // import { IoGridOutline } from "react-icons/io5";
 import { FaBars, FaArrowDown, FaArrowUp, FaClock } from "react-icons/fa";
 import { clearLocalStorage } from "../Hooks/useLocalStorage";
 import { toast, ToastContainer } from "react-toastify";
-
 
 function Dashboard() {
   const { url, infoTkn, search } = useDataContext();
@@ -125,12 +125,40 @@ function Dashboard() {
   const [accusd_number, setAccusd_number] = useState("");
   const [accusd_Ident, setAccusd_Ident] = useState("");
   const [accusd_phone, setAccusd_phone] = useState("");
-  const [editBankModal, setEditBankModal] = useState(false);
-const [editingBank, setEditingBank] = useState(null);
 
-const toggleEditBankModal = () => setEditBankModal(!editBankModal);
+  // Función para manejar el envío del formulario
+  // const handleSubmitBank = async (event) => {
+  //   event.preventDefault();
 
+  //   try {
+  //     await axios.post(
+  //       `${url}/AccEur`,
+  //       {
+  //         acceur_Bank: formData.acceur_Bank,
+  //         acceur_owner: formData.acceur_owner,
+  //         acceur_number: formData.acceur_number,
+  //         acceur_nie: formData.acceur_nie,
+  //         acceur_phone: formData.acceur_phone,
+  //         acceur_type: formData.acceur_type,
+  //         acceur_status: formData.acceur_status,
+  //         acceur_balance: formData.acceur_balance,
+  //       },
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${infoTkn}`,
+  //           "Content-Type": "application/json",
+  //         },
+  //       }
+  //     );
 
+  //     // Actualiza la lista de bancos si es necesario
+  //     setBanks([...banks, formData]);
+  //     handleClose();
+  //     toast.success("Banco agregado con éxito!");
+  //   } catch (error) {
+  //     toast.error("Error al intentar agregar el banco.");
+  //   }
+  // };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -140,16 +168,19 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
     });
   };
 
+  const handleDelete = (number) => {
+    setBanks(banks.filter((bank) => bank.acceur_number !== number));
+  };
 
   const handleDisable = (number) => {
     setBanks(
       banks.map((bank) =>
         bank.acceur_number === number
           ? {
-              ...bank,
-              acceur_status:
-                bank.acceur_status === "Activo" ? "Inactivo" : "Activo",
-            }
+            ...bank,
+            acceur_status:
+              bank.acceur_status === "Activo" ? "Inactivo" : "Activo",
+          }
           : bank
       )
     );
@@ -247,64 +278,7 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
   const [selectedUser, setSelectedUser] = useState(null);
 
   const [modalImageUser, setModalImageUser] = useState(false);
-  const toggleImageUser = () => setModalImageUser(!modalImageUser); 
-  const [currencyPrices, setCurrencyPrices] = useState({
-    cur_EurToBs: 0,
-    cur_EurToUsd: 0,
-    cur_UsdToBs: 0,
-    cur_EurToUsd_Pa: 0,
-    cur_EurToUsd_Ecu: 0,
-    cur_EurToSol_Pe: 0,
-    cur_EurToPes_Ch: 0
-  });
-  const [curId, setCurId] = useState(null);
-
-  const fetchCurrencyData = useCallback(async () => {
-    try {
-      const response = await axios.get(`${url}/currencyPrice`);
-      if (response.data && response.data.length > 0) {
-        setCurId(response.data[0].cur_id);
-        setCurrencyPrices({
-          cur_EurToBs: response.data[0].cur_EurToBs,
-          cur_EurToUsd: response.data[0].cur_EurToUsd,
-          cur_UsdToBs: response.data[0].cur_UsdToBs,
-          cur_EurToUsd_Pa: response.data[0].cur_EurToUsd_Pa,
-          cur_EurToUsd_Ecu: response.data[0].cur_EurToUsd_Ecu,
-          cur_EurToSol_Pe: response.data[0].cur_EurToSol_Pe,
-          cur_EurToPes_Ch: response.data[0].cur_EurToPes_Ch
-        });
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  }, [url]);
-
-  useEffect(() => {
-    fetchCurrencyData();
-  }, [fetchCurrencyData]);
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setCurrencyPrices(prevState => ({
-      ...prevState,
-      [name]: value
-    }));
-  };
-
-  const handleSaveChanges = async () => {
-    if (curId === null) {
-      alert('No se pudo encontrar el ID de la moneda.');
-      return;
-    }
-
-    try {
-      await axios.put(`${url}/currencyPrice/${curId}`, currencyPrices);
-      alert('Cambios guardados con éxito');
-    } catch (error) {
-      console.error(error);
-      alert('Error al guardar los cambios');
-    }
-  };
+  const toggleImageUser = () => setModalImageUser(!modalImageUser);
 
   const [modal, setModal] = useState(false);
   const toggle = () => {
@@ -341,10 +315,22 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
   // const usersPerPage = 9; // Número máximo de usuarios por página
 
   const filteredUsuarios = dataUsers.filter((user) => {
-    const fullName =
-      `${user.use_name} ${user.use_lastName} ${user.use_dni}`.toLowerCase();
+    // Convertir la fecha a formato 'dd-mm-aaaa'
+    const formattedDate = user.use_createdAt
+      ? new Date(user.use_createdAt).toLocaleDateString('es-ES', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        })
+      : '';
+  
+    // Concatenar nombre, apellido, DNI y la fecha formateada
+    const fullName = `${user.use_name} ${user.use_lastName} ${user.use_dni} ${formattedDate}`.toLowerCase();
+  
+    // Comparar con la búsqueda
     return fullName.includes(searchQuery.toLowerCase());
   });
+  
 
   const handleCardClick = (section) => {
     setActiveItem(section);
@@ -490,58 +476,161 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
 
   const handleEditBank = async (event) => {
     event.preventDefault();
-  
-    try {
-      await axios.put(
-        `${url}/Acceur/${editingBank.acceur_id}`,
-        {
-          acceur_Bank: editingBank.acceur_Bank,
-          acceur_owner: editingBank.acceur_owner,
-          acceur_number: editingBank.acceur_number,
-          acceur_phone: editingBank.acceur_phone,
-          acceur_type: editingBank.acceur_type,
-          currency: editingBank.currency,
-          acceur_status: editingBank.acceur_status,
-          acceur_balance: editingBank.acceur_balance,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${infoTkn}`,
-          },
-        }
-      );
-  
-      fetchDataEUR();
-      fetchDataUSD();
-  
-      console.log("Formulario enviado:", editingBank); 
 
-      toast.success("¡Datos cambiados con éxito!", {
-        position: "bottom-right",
-        autoClose: 1000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
-  
-      toggleEditBankModal(); // Cerrar el modal
-      toggleBankViewer(); // Cerrar el modal
-    } catch (error) {
-      console.error("Error al guardar los cambios:", error);
-      toast.error("¡Error al guardar los cambios!", {
-        position: "bottom-right",
-        autoClose: 1000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
+    if (selectedBank.acceur_Bank) {
+      try {
+        await axios.put(
+          `${url}/Acceur/${selectedBank.acceur_id}`,
+          {
+            acceur_status:
+              selectedBank.acceur_status === "Desactivo"
+                ? "Activo"
+                : "Desactivo",
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,
+            },
+          }
+        );
+
+        fetchDataEUR();
+        fetchDataUSD();
+
+        toast.success("¡Datos cambiados con éxito!", {
+          position: "bottom-right",
+          autoClose: 1000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+
+        toggleBankViewer();
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    if (selectedBank.accusd_Bank) {
+      try {
+        await axios.put(
+          `${url}/Accusd/${selectedBank.accusd_id}`,
+          {
+            accusd_status:
+              selectedBank.accusd_status === "Desactivo"
+                ? "Activo"
+                : "Desactivo",
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,
+            },
+          }
+        );
+
+        fetchDataEUR();
+        fetchDataUSD();
+
+        toast.success("¡Datos cambiados con éxito!", {
+          position: "bottom-right",
+          autoClose: 1000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+
+        toggleBankViewer();
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
-  
+
+  const [modalKYC, setModalKYC] = useState(false);  // Control del modal KYC
+  const [kycLink, setKycLink] = useState('');  // Enlace KYC
+
+  // Abre el modal para enviar KYC
+  const openKYCModal = (user) => {
+    setSelectedUser(user);
+    setModalKYC(true);
+  };
+
+  // Cierra el modal KYC
+  const closeKYCModal = () => {
+    setModalKYC(false);
+    setKycLink('');  // Limpia el enlace de KYC
+  };
+
+
+  //Funcion para enviar KYC
+  const handleSendKYC = async () => {
+    if (!kycLink) {
+      toast.error("El enlace de KYC no puede estar vacío.");
+      return;
+    }
+
+    try {
+      // Paso 1: Obtener el KYC link asociado al usuario a través del ID del usuario
+      const response = await axios.get(`${url}/kyclink/user/${selectedUser.use_id}`, {
+        headers: {
+          Authorization: `Bearer ${infoTkn}`, // Autorización usando infoTkn
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const kycData = response.data;
+
+      // Verificamos si existe un KYC link para este usuario
+      if (kycData && kycData.kyc_link_id) {
+        // Paso 2: Hacemos el PUT para actualizar el kyc_link asociado al usuario
+        await axios.put(
+          `${url}/kyclink/${kycData.kyc_link_id}`,  // Utilizamos el kyc_link_id obtenido en el GET
+          {
+            kyc_link: kycLink,  // Actualizamos el nuevo enlace KYC
+            kyc_link_status: "Pending",  // Cambiamos el estado del KYC a 'Pending'
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,  // Autorización usando infoTkn
+              'Content-Type': 'application/json',
+            }
+          }
+        );
+
+        // Paso 3: Si el PUT es exitoso, enviamos el correo con el enlace KYC
+        await axios.post(
+          `${url}/Mailer/EmailKYC/${selectedUser.use_email}`,  // Enviar el correo con el enlace
+          {
+            link: kycLink  // Enlace a incluir en el correo
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${infoTkn}`,  // Autorización usando infoTkn
+              'Content-Type': 'application/json',
+            }
+          }
+        );
+
+        toast.success("¡Link KYC actualizado y enviado exitosamente!");
+        setModalKYC(false);  // Cierra el modal
+        setKycLink('');  // Limpia el campo del KYC link
+
+      } else {
+        toast.error("No se encontró un enlace KYC asociado a este usuario.");
+      }
+
+    } catch (error) {
+      console.error("Error al actualizar o enviar el KYC link:", error);
+      toast.error("Hubo un problema al actualizar o enviar el enlace KYC.");
+    }
+  };
+
+
+
+
 
   const handleSubmitBank = async (event) => {
     event.preventDefault();
@@ -1129,6 +1218,7 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
                     <th className="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                       Verificacion
                     </th>
+
                     <th className="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                       USD
                     </th>
@@ -1251,138 +1341,7 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
             </ModalFooter>
           </Modal>
 
-{/* Modal Editar Cuenta banco */}
-<Modal isOpen={editBankModal} toggle={toggleEditBankModal} size="lg" centered>
-  <ModalHeader toggle={toggleEditBankModal}>Editar Banco</ModalHeader>
-  <ModalBody>
-    <Form onSubmit={handleEditBank}>
-      <FormGroup>
-        <Label for="bankName">Nombre del Banco</Label>
-        <Input
-          type="text"
-          id="bankName"
-          name="bankName"
-          value={editingBank?.acceur_Bank || ""}
-          onChange={(e) => setEditingBank(prevState => ({
-            ...prevState,
-            acceur_Bank: e.target.value
-          }))}
-          required
-        />
-      </FormGroup>
-      <FormGroup>
-        <Label for="owner">Propietario</Label>
-        <Input
-          type="text"
-          id="owner"
-          name="owner"
-          value={editingBank?.acceur_owner || ""}
-          onChange={(e) => setEditingBank(prevState => ({
-            ...prevState,
-            acceur_owner: e.target.value
-          }))}
-          required
-        />
-      </FormGroup>
-      <FormGroup>
-        <Label for="accountNumber">Número de Cuenta</Label>
-        <Input
-          type="text"
-          id="accountNumber"
-          name="accountNumber"
-          value={editingBank?.acceur_number || ""}
-          onChange={(e) => setEditingBank(prevState => ({
-            ...prevState,
-            acceur_number: e.target.value
-          }))}
-          required
-        />
-      </FormGroup>
-      <FormGroup>
-        <Label for="phone">Teléfono</Label>
-        <Input
-          type="text"
-          id="phone"
-          name="phone"
-          value={editingBank?.acceur_phone || ""}
-          onChange={(e) => setEditingBank(prevState => ({
-            ...prevState,
-            acceur_phone: e.target.value
-          }))}
-          required
-        />
-      </FormGroup>
-      <FormGroup>
-        <Label for="type">Tipo</Label>
-        <Input
-          type="text"
-          id="type"
-          name="type"
-          value={editingBank?.acceur_type || ""}
-          onChange={(e) => setEditingBank(prevState => ({
-            ...prevState,
-            acceur_type: e.target.value
-          }))}
-          required
-        />
-      </FormGroup>
-      <FormGroup>
-        <Label for="currency">Moneda</Label>
-        <Input
-          type="select"
-          id="currency"
-          name="currency"
-          value={editingBank?.currency || ""}
-          onChange={(e) => setEditingBank(prevState => ({
-            ...prevState,
-            currency: e.target.value
-          }))}
-          required
-        >
-          <option value="USD">USD</option>
-          <option value="EUR">EUR</option>
-        </Input>
-      </FormGroup>
-      <FormGroup>
-        <Label for="status">Estado</Label>
-        <Input
-          type="select"
-          id="status"
-          name="status"
-          value={editingBank?.acceur_status || ""}
-          onChange={(e) => setEditingBank(prevState => ({
-            ...prevState,
-            acceur_status: e.target.value
-          }))}
-          required
-        >
-          <option value="Activo">Activo</option>
-          <option value="Desactivo">Desactivo</option>
-        </Input>
-      </FormGroup>
-      <FormGroup>
-        <Label for="balance">Saldo</Label>
-        <Input
-          type="number"
-          id="balance"
-          name="balance"
-          value={editingBank?.acceur_balance || ""}
-          onChange={(e) => setEditingBank(prevState => ({
-            ...prevState,
-            acceur_balance: e.target.value
-          }))}
-          
-        />
-      </FormGroup>
-      <ModalFooter>
-        <Button color="primary" type="submit">Guardar Cambios</Button>
-        <Button color="secondary" onClick={toggleEditBankModal}>Cancelar</Button>
-      </ModalFooter>
-    </Form>
-  </ModalBody>
-</Modal>
-
-
+          {/* Modal De Editar Cuenta */}
           <Modal
             className="mt-5"
             isOpen={modal1}
@@ -1507,15 +1466,7 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
                   </Button>
                 )
               ) : null}
-              <Button
-                color="warning"
-                onClick={() => {
-                  setEditingBank(selectedBank); 
-                  toggleEditBankModal();
-                }}
-              >
-                Editar
-              </Button>
+              <Button color="warning">Editar</Button>
               <Button
                 color="secondary"
                 onClick={() => {
@@ -1753,7 +1704,7 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
                     <img src={Logo} alt="Account" />
                   </div>
                   <div className="account-info-name">
-                    {admin && admin.adm_username}
+                    {admin && admin.adm_user}
                   </div>
                   <button className="account-info-more" onClick={clearLocal}>
                     <IoMdExit style={{ color: "#212121", fontSize: "20px" }} />
@@ -1768,7 +1719,10 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
                         ? "sidebar-list-item active"
                         : "sidebar-list-item"
                     }
-                    onClick={() => handleClick("Home")}
+                    onClick={() => {
+                      handleClick("Home");
+                      setSidebar(false);
+                    }}
                   >
                     <div>
                       <svg
@@ -1795,7 +1749,10 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
                         ? "sidebar-list-item active"
                         : "sidebar-list-item"
                     }
-                    onClick={() => handleClick("Usuarios")}
+                    onClick={() => {
+                      handleClick("Usuarios");
+                      setSidebar(false);
+                    }}
                   >
                     <div>
                       <svg
@@ -1823,7 +1780,10 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
                         ? "sidebar-list-item active"
                         : "sidebar-list-item"
                     }
-                    onClick={() => handleClick("Usuarios verificados")}
+                    onClick={() => {
+                      handleClick("Usuarios verificados");
+                      setSidebar(false);
+                    }}
                   >
                     <div>
                       <svg
@@ -1850,7 +1810,10 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
                         ? "sidebar-list-item active"
                         : "sidebar-list-item"
                     }
-                    onClick={() => handleClick("Usuarios no verificados")}
+                    onClick={() => {
+                      handleClick("Usuarios no verificados");
+                      setSidebar(false);
+                    }}
                   >
                     <div>
                       <svg
@@ -1877,7 +1840,10 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
                         ? "sidebar-list-item active"
                         : "sidebar-list-item"
                     }
-                    onClick={() => handleClick("Tasas")}
+                    onClick={() => {
+                      handleClick("Tasas");
+                      setSidebar(false);
+                    }}
                   >
                     <div>
                       <svg
@@ -1904,7 +1870,10 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
                         ? "sidebar-list-item active"
                         : "sidebar-list-item"
                     }
-                    onClick={() => handleClick("Bancos")}
+                    onClick={() => {
+                      handleClick("Bancos");
+                      setSidebar(false);
+                    }}
                   >
                     <div>
                       <svg
@@ -1925,8 +1894,6 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
                       <span>Bancos</span>
                     </div>
                   </li>
-
-
                 </ul>
               </OffcanvasBody>
             </Offcanvas>
@@ -2095,6 +2062,7 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
                   color="danger"
                   onClick={() => {
                     handleCancelVerif(select);
+                    toggleViewer(false);
                   }}
                 >
                   Rechazar
@@ -2163,9 +2131,9 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
                           </div>
                           <hr className="modern-horizontal my-0" />
                           <div className="card-footer p-3">
-                          <button
+                            <button
                               className="btn btn-light"
-                              onClick={() => handleCardClick('Usuarios')}
+                              onClick={() => handleCardClick("Usuarios")}
                             >
                               Ver usuarios
                             </button>
@@ -2185,7 +2153,9 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
                               </p>
                               <h4 className="mb-0">
                                 {dataUsers ? (
-                                  dataUsers.filter(user => user.use_verif === "S").length
+                                  dataUsers.filter(
+                                    (user) => user.use_verif === "S"
+                                  ).length
                                 ) : (
                                   <b>No hay usuarios</b>
                                 )}
@@ -2196,14 +2166,13 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
                           <div className="card-footer p-3">
                             <button
                               className="btn btn-light"
-                              onClick={() => handleCardClick('Usuarios')}
+                              onClick={() => handleCardClick("Usuarios verificados")}
                             >
                               Ver usuarios
                             </button>
                           </div>
                         </div>
                       </div>
-
 
                       <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
                         <div className="card modern-card bg-gradient-info">
@@ -2228,9 +2197,11 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
                           </div>
                           <hr className="modern-horizontal my-0" />
                           <div className="card-footer p-3">
-                          <button
+                            <button
                               className="btn btn-light"
-                              onClick={() => handleCardClick('Usuarios no verificados')}
+                              onClick={() =>
+                                handleCardClick("Usuarios no verificados")
+                              }
                             >
                               Ver usuarios
                             </button>
@@ -2262,9 +2233,7 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
                             </div>
                           </div>
                           <hr className="modern-horizontal my-0" />
-                          <div className="card-footer p-3">
-
-                          </div>
+                          <div className="card-footer p-3"></div>
                         </div>
                       </div>
                     </div>
@@ -2347,8 +2316,8 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
                                     <td className="align-middle text-center text-sm">
                                       <span
                                         className={`badge badge-sm ${move.mov_status === "E" && (
-                                            <FaClock className="pending-icon" />
-                                          )
+                                          <FaClock className="pending-icon" />
+                                        )
                                           }`}
                                       ></span>
                                     </td>
@@ -2410,6 +2379,9 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
                                 <th className="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                                   DNI
                                 </th>
+                                <th className="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                  Fecha creacion
+                                </th>
                                 <th className="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                                   Verificacion
                                 </th>
@@ -2446,6 +2418,19 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
                                         user.use_dni
                                       ) : (
                                         <p>No hay resultados</p>
+                                      )}
+                                    </span>
+                                  </td>
+                                  <td className="align-middle text-start">
+                                    <span className="text-secondary text-xs font-weight-bold">
+                                      {user.use_createdAt ? (
+                                        new Date(user.use_createdAt).toLocaleDateString('es-ES', {
+                                          day: '2-digit',
+                                          month: '2-digit',
+                                          year: 'numeric'
+                                        })
+                                      ) : (
+                                        "No hay fecha"
                                       )}
                                     </span>
                                   </td>
@@ -2535,7 +2520,9 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
                     <div className="card my-4" style={{ width: "100%" }}>
                       <div className="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
                         <div className="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
-                          <h6 className="text-white text-capitalize ps-3">Tasas de Cambio</h6>
+                          <h6 className="text-white text-capitalize ps-3">
+                            Tasas de Cambio
+                          </h6>
                         </div>
                       </div>
                       <div className="card-body px-3 pb-2">
@@ -2548,11 +2535,15 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
                               </div>
                               <div className="ms-3">
                                 <h6 className="mb-0">EUR a Bs</h6>
-                                <p className="text-sm text-muted mb-0">Tasa de Cambio</p>
+                                <p className="text-sm text-muted mb-0">
+                                  Tasa de Cambio
+                                </p>
                               </div>
                             </div>
                             <div className="input-group mt-2">
-                              <span className="input-group-text"><FaEuroSign /></span>
+                              <span className="input-group-text">
+                                <FaEuroSign />
+                              </span>
                               <input
                                 type="number"
                                 name="cur_EurToBs"
@@ -2571,11 +2562,15 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
                               </div>
                               <div className="ms-3">
                                 <h6 className="mb-0">EUR a USD</h6>
-                                <p className="text-sm text-muted mb-0">Tasa de Cambio</p>
+                                <p className="text-sm text-muted mb-0">
+                                  Tasa de Cambio
+                                </p>
                               </div>
                             </div>
                             <div className="input-group mt-2">
-                              <span className="input-group-text"><FaDollarSign /></span>
+                              <span className="input-group-text">
+                                <FaDollarSign />
+                              </span>
                               <input
                                 type="number"
                                 name="cur_EurToUsd"
@@ -2594,11 +2589,15 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
                               </div>
                               <div className="ms-3">
                                 <h6 className="mb-0">USD a Bs</h6>
-                                <p className="text-sm text-muted mb-0">Tasa de Cambio</p>
+                                <p className="text-sm text-muted mb-0">
+                                  Tasa de Cambio
+                                </p>
                               </div>
                             </div>
                             <div className="input-group mt-2">
-                              <span className="input-group-text"><FaDollarSign /></span>
+                              <span className="input-group-text">
+                                <FaDollarSign />
+                              </span>
                               <input
                                 type="number"
                                 name="cur_UsdToBs"
@@ -2617,11 +2616,15 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
                               </div>
                               <div className="ms-3">
                                 <h6 className="mb-0">Eur a USD Panameño</h6>
-                                <p className="text-sm text-muted mb-0">Tasa de Cambio</p>
+                                <p className="text-sm text-muted mb-0">
+                                  Tasa de Cambio
+                                </p>
                               </div>
                             </div>
                             <div className="input-group mt-2">
-                              <span className="input-group-text"><FaPoundSign /></span>
+                              <span className="input-group-text">
+                                <FaPoundSign />
+                              </span>
                               <input
                                 type="number"
                                 name="cur_EurToUsd_Pa"
@@ -2640,11 +2643,15 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
                               </div>
                               <div className="ms-3">
                                 <h6 className="mb-0">EUR a USD Ecuatoriano</h6>
-                                <p className="text-sm text-muted mb-0">Tasa de Cambio</p>
+                                <p className="text-sm text-muted mb-0">
+                                  Tasa de Cambio
+                                </p>
                               </div>
                             </div>
                             <div className="input-group mt-2">
-                              <span className="input-group-text"><FaDollarSign /></span>
+                              <span className="input-group-text">
+                                <FaDollarSign />
+                              </span>
                               <input
                                 type="number"
                                 name="cur_EurToUsd_Ecu"
@@ -2663,11 +2670,15 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
                               </div>
                               <div className="ms-3">
                                 <h6 className="mb-0">EUR a Soles</h6>
-                                <p className="text-sm text-muted mb-0">Tasa de Cambio</p>
+                                <p className="text-sm text-muted mb-0">
+                                  Tasa de Cambio
+                                </p>
                               </div>
                             </div>
                             <div className="input-group mt-2">
-                              <span className="input-group-text"><FaYenSign /></span>
+                              <span className="input-group-text">
+                                <FaYenSign />
+                              </span>
                               <input
                                 type="number"
                                 name="cur_EurToSol_Pe"
@@ -2685,12 +2696,16 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
                                 <FaMoneyCheckAlt size={24} />
                               </div>
                               <div className="ms-3">
-                                <h6 className="mb-0">EUR a Pesos Chilenos</h6>
-                                <p className="text-sm text-muted mb-0">Tasa de Cambio</p>
+                                <h6 className="mb-0">USD a Pesos Chilenos</h6>
+                                <p className="text-sm text-muted mb-0">
+                                  Tasa de Cambio
+                                </p>
                               </div>
                             </div>
                             <div className="input-group mt-2">
-                              <span className="input-group-text"><FaYenSign /></span>
+                              <span className="input-group-text">
+                                <FaYenSign />
+                              </span>
                               <input
                                 type="number"
                                 name="cur_EurToPes_Ch"
@@ -2703,7 +2718,12 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
                           </div>
                         </div>
                         <div className="text-center">
-                          <button onClick={handleSaveChanges} className="btn btn-success mt-4">Guardar Cambios</button>
+                          <button
+                            onClick={handleSaveChanges}
+                            className="btn btn-success mt-4"
+                          >
+                            Guardar Cambios
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -2714,417 +2734,480 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
 
             {/* User Verificated */}
             {activeItem === "Usuarios verificados" && (
-  <div
-    className="dashboard-container"
-    style={{ width: window.innerWidth < 450 ? "100%" : "100%" }}
-  >
-    <div className="content">
-      <div className="container-fluid py-4">
-        <div
-          className="card my-4"
-          style={{ width: window.innerWidth < 450 ? "100%" : "100%" }}
-        >
-          <div className="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-            <div className="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
-              <h6 className="text-white text-capitalize ps-3">
-                Usuarios Verificados
-              </h6>
-            </div>
-          </div>
-          <div className="card-body px-0 pb-2">
-            <div className="table-responsive p-0">
-              <table className="table align-items-center mb-0">
-                <thead>
-                  <tr>
-                    <th className="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                      Usuario
-                    </th>
-                    <th className="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
-                      DNI
-                    </th>
-                    <th className="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                      Verificación
-                    </th>
-                    <th className="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                      USD
-                    </th>
-                    <th className="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                      EUR
-                    </th>
-                    <th className="text-secondary opacity-7"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredUsuarios
-                    .filter((user) => user.use_verif === "S")
-                    .map((user) => (
-                      <tr key={user.use_id}>
-                        <td>
-                          <div className="d-flex px-2 py-1">
-                            <div>
-                              <FaUserCircle className="avatar avatar-sm me-3 border-radius-lg" />
-                            </div>
-                            <div className="d-flex flex-column justify-content-center">
-                              <h6 className="mb-0 text-sm">
-                                {user.use_name} {user.use_lastName}
-                              </h6>
-                              <p className="text-xs text-secondary mb-0">
-                                {user.use_email}
-                              </p>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="align-middle text-start">
-                          <span className="text-secondary text-xs font-weight-bold">
-                            {user.use_dni || "No hay resultados"}
-                          </span>
-                        </td>
-                        <td className="align-middle text-center text-sm">
-                          <span className={`badge badge-sm`}>
-                            {user.use_verif === "S" ? (
-                              <AiOutlineCheckCircle
-                                style={{ color: "green", fontSize: "2em" }}
-                              />
-                            ) : (
-                              <AiOutlineCloseCircle
-                                style={{ color: "red", fontSize: "2em" }}
-                              />
-                            )}
-                          </span>
-                        </td>
-                        <td className="align-middle text-center">
-                          <span className="text-secondary text-xs font-weight-bold">
-                            {user.use_amountUsd || 0}
-                          </span>
-                        </td>
-                        <td className="align-middle text-center">
-                          <span className="text-secondary text-xs font-weight-bold">
-                            {user.use_amountEur || 0}
-                          </span>
-                        </td>
-                        <td className="align-middle">
-                          <Button
-                            outline
-                            color="info"
-                            onClick={toggleViewer}
-                          >
-                            Detalles
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
-
-
+              <div
+                className="dashboard-container"
+                style={{ width: window.innerWidth < 450 ? "100%" : "100%" }}
+              >
+                <div className="content">
+                  <div className="container-fluid py-4">
+                    <div
+                      className="card my-4"
+                      style={{
+                        width: window.innerWidth < 450 ? "100%" : "100%",
+                      }}
+                    >
+                      <div className="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                        <div className="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                          <h6 className="text-white text-capitalize ps-3">
+                            Usuarios Verificados
+                          </h6>
+                        </div>
+                      </div>
+                      <div className="card-body px-0 pb-2">
+                        <div className="table-responsive p-0">
+                          <table className="table align-items-center mb-0">
+                            <thead>
+                              <tr>
+                                <th className="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                  Usuario
+                                </th>
+                                <th className="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                  DNI
+                                </th>
+                                <th className="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                  Verificación
+                                </th>
+                                <th className="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                  USD
+                                </th>
+                                <th className="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                  EUR
+                                </th>
+                                <th className="text-secondary opacity-7"></th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {filteredUsuarios
+                                .filter((user) => user.use_verif === "S")
+                                .map((user) => (
+                                  <tr key={user.use_id}>
+                                    <td>
+                                      <div className="d-flex px-2 py-1">
+                                        <div>
+                                          <FaUserCircle className="avatar avatar-sm me-3 border-radius-lg" />
+                                        </div>
+                                        <div className="d-flex flex-column justify-content-center">
+                                          <h6 className="mb-0 text-sm">
+                                            {user.use_name} {user.use_lastName}
+                                          </h6>
+                                          <p className="text-xs text-secondary mb-0">
+                                            {user.use_email}
+                                          </p>
+                                        </div>
+                                      </div>
+                                    </td>
+                                    <td className="align-middle text-start">
+                                      <span className="text-secondary text-xs font-weight-bold">
+                                        {user.use_dni || "No hay resultados"}
+                                      </span>
+                                    </td>
+                                    <td className="align-middle text-center text-sm">
+                                      <span className={`badge badge-sm`}>
+                                        <AiOutlineCheckCircle
+                                          style={{
+                                            color: "green",
+                                            fontSize: "2em",
+                                          }}
+                                        />
+                                      </span>
+                                    </td>
+                                    <td className="align-middle text-center">
+                                      <span className="text-secondary text-xs font-weight-bold">
+                                        {user.use_amountUsd || 0}
+                                      </span>
+                                    </td>
+                                    <td className="align-middle text-center">
+                                      <span className="text-secondary text-xs font-weight-bold">
+                                        {user.use_amountEur || 0}
+                                      </span>
+                                    </td>
+                                    <td className="align-middle">
+                                      <Button
+                                        outline
+                                        color="info"
+                                        onClick={() => {
+                                          setSelect(user);
+                                          toggleViewer();
+                                        }}
+                                      >
+                                        Detalles
+                                      </Button>
+                                    </td>
+                                  </tr>
+                                ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Users per Verificate */}
             {activeItem === "Usuarios no verificados" && (
-  <div
-    className="dashboard-container"
-    style={{ width: window.innerWidth < 450 ? "100%" : "100%" }}
-  >
-    <div className="content">
-      <div className="container-fluid py-4">
-        <div
-          className="card my-4"
-          style={{ width: window.innerWidth < 450 ? "100%" : "100%" }}
-        >
-          <div className="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-            <div className="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
-              <h6 className="text-white text-capitalize ps-3">
-                Usuarios No Verificados
-              </h6>
-            </div>
-          </div>
-          <div className="card-body px-0 pb-2">
-            <div className="table-responsive p-0">
-              <table className="table align-items-center mb-0">
-                <thead>
-                  <tr>
-                    <th className="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                      Usuario
-                    </th>
-                    <th className="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
-                      DNI
-                    </th>
-                    <th className="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                      Verificación
-                    </th>
-                    <th className="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                      USD
-                    </th>
-                    <th className="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                      EUR
-                    </th>
-                    <th className="text-secondary opacity-7"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredUsuarios
-                    .filter((user) => user.use_verif === "E" || user.use_verif === "e")
-                    .map((user) => (
-                      <tr key={user.use_id}>
-                        <td>
-                          <div className="d-flex px-2 py-1">
-                            <div>
-                              <FaUserCircle className="avatar avatar-sm me-3 border-radius-lg" />
-                            </div>
-                            <div className="d-flex flex-column justify-content-center">
-                              <h6 className="mb-0 text-sm">
-                                {user.use_name} {user.use_lastName}
-                              </h6>
-                              <p className="text-xs text-secondary mb-0">
-                                {user.use_email}
-                              </p>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="align-middle text-start">
-                          <span className="text-secondary text-xs font-weight-bold">
-                            {user.use_dni || "No hay resultados"}
-                          </span>
-                        </td>
-                        <td className="align-middle text-center text-sm">
-                          <span className="badge badge-sm">
-                            <AiOutlineClockCircle
-                              style={{ color: "blue", fontSize: "2em" }}
-                            />
-                          </span>
-                        </td>
-                        <td className="align-middle text-center">
-                          <span className="text-secondary text-xs font-weight-bold">
-                            {user.use_amountUsd || 0}
-                          </span>
-                        </td>
-                        <td className="align-middle text-center">
-                          <span className="text-secondary text-xs font-weight-bold">
-                            {user.use_amountEur || 0}
-                          </span>
-                        </td>
-                        <td className="align-middle">
-                          <Button
-                            outline
-                            color="success"
-                            onClick={() => {
-                              setSelect(user);
-                              toggleImageUser();
-                            }}
-                          >
-                            Verificar
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
+              <div
+                className="dashboard-container"
+                style={{ width: window.innerWidth < 450 ? "100%" : "100%" }}
+              >
+                <div className="content">
+                  <div className="container-fluid py-4">
+                    <div
+                      className="card my-4"
+                      style={{
+                        width: window.innerWidth < 450 ? "100%" : "100%",
+                      }}
+                    >
+                      <div className="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                        <div className="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                          <h6 className="text-white text-capitalize ps-3">
+                            Usuarios No Verificados
+                          </h6>
+                        </div>
+                      </div>
+                      <div className="card-body px-0 pb-2">
+                        <div className="table-responsive p-0">
+                          <table className="table align-items-center mb-0">
+                            <thead>
+                              <tr>
+                                <th className="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                  Usuario
+                                </th>
+                                <th className="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                  DNI
+                                </th>
+                                <th className="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                  Verificación
+                                </th>
+                                <th className="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                  USD
+                                </th>
+                                <th className="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                  EUR
+                                </th>
+                                <th className="text-secondary opacity-7"></th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {filteredUsuarios
+                                .filter((user) => user.use_verif === "E" || user.use_verif === "e")
+                                .map((user) => (
+                                  <tr key={user.use_id}>
+                                    <td>
+                                      <div className="d-flex px-2 py-1">
+                                        <div>
+                                          <FaUserCircle className="avatar avatar-sm me-3 border-radius-lg" />
+                                        </div>
+                                        <div className="d-flex flex-column justify-content-center">
+                                          <h6 className="mb-0 text-sm">
+                                            {user.use_name} {user.use_lastName}
+                                          </h6>
+                                          <p className="text-xs text-secondary mb-0">
+                                            {user.use_email}
+                                          </p>
+                                        </div>
+                                      </div>
+                                    </td>
+                                    <td className="align-middle text-start">
+                                      <span className="text-secondary text-xs font-weight-bold">
+                                        {user.use_dni || "No hay resultados"}
+                                      </span>
+                                    </td>
+                                    <td className="align-middle text-center text-sm">
+                                      <span className="badge badge-sm">
+                                        <AiOutlineClockCircle
+                                          style={{ color: "blue", fontSize: "2em" }}
+                                        />
+                                      </span>
+                                    </td>
+                                    <td className="align-middle text-center">
+                                      <span className="text-secondary text-xs font-weight-bold">
+                                        {user.use_amountUsd || 0}
+                                      </span>
+                                    </td>
+                                    <td className="align-middle text-center">
+                                      <span className="text-secondary text-xs font-weight-bold">
+                                        {user.use_amountEur || 0}
+                                      </span>
+                                    </td>
+                                    <td className="align-middle">
+                                      <Button
+                                        outline
+                                        color="info"
+                                        onClick={() => openKYCModal(user)}  // Botón para solicitar el enlace KYC
+                                      >
+                                        Solicitar KYC Link
+                                      </Button>
+                                      <Button
+                                        outline
+                                        color="success"
+                                        className="ms-2"
+                                        onClick={() => handleConfirmVerif(user)}  // Botón para aprobar al usuario
+                                      >
+                                        Aprobar
+                                      </Button>
+                                      <Button
+                                        outline
+                                        color="danger"
+                                        className="ms-2"
+                                        onClick={() => handleCancelVerif(user)}  // Botón para rechazar al usuario
+                                      >
+                                        Rechazar
+                                      </Button>
+                                    </td>
+                                  </tr>
+                                ))}
+                            </tbody>
 
-{activeItem === "Bancos" && (
-  <div className="dashboard-container" style={{ width: "100%" }}>
-    <Button className='btn' color="primary" onClick={toggleBank}>
-      Agregar Banco
-    </Button>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
-    <div className="content">
-      <div className="container-fluid py-4">
-        <div className="card my-4" style={{ width: "100%" }}>
-          <div className="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-            <div className="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
-              <h6 className="text-white text-capitalize ps-3">Bancos</h6>
-            </div>
-          </div>
-          <div className="card-body px-0 pb-2">
-            <div className="table-responsive p-0">
-              <Table className="table align-items-center mb-0">
-                <thead>
-                  <tr>
-                    <th className="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                      Banco
-                    </th>
-                    <th className="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
-                      Propietario
-                    </th>
-                    <th className="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                      Número
-                    </th>
-                    <th className="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                      NIE
-                    </th>
-                    <th className="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                      Teléfono
-                    </th>
-                    <th className="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                      Tipo
-                    </th>
-                    <th className="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                      Balance
-                    </th>
-                    <th className="text-secondary opacity-7"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredBanks
-                    .filter(
-                      (bank) =>
-                        bank.acceur_Bank !== "Ghost" &&
-                        bank.accusd_Bank !== "Ghost"
-                    )
-                    .map((bank) => (
-                      <tr
-                        key={bank.acceur_number}
-                        onClick={() => {
-                          setSelectBank(bank);
-                          toggleBankViewer();
-                        }}
-                      >
-                        <td>{bank.acceur_Bank}</td>
-                        <td>{bank.acceur_owner}</td>
-                        <td className="text-center">{bank.acceur_number}</td>
-                        <td className="text-center">{bank.acceur_nie}</td>
-                        <td className="text-center">{bank.acceur_phone}</td>
-                        <td className="text-center">{bank.acceur_type}</td>
-                        <td className="text-center">{bank.acceur_balance}</td>
-                        <td className="align-middle">
-                         
-                          <Button
-                            color="warning"
-                            
-                            onClick={() => handleDisable(bank.acceur_number)}
-                          >
-                            Editar
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </Table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {/* Modal para agregar un banco */}
-    <Modal isOpen={showBankModal} toggle={handleClose}>
-      <ModalHeader toggle={handleClose}>Agregar Banco</ModalHeader>
-      <ModalBody>
-        <Form>
-          <FormGroup>
-            <Label for="acceur_Bank">Banco</Label>
-            <Input
-              type="select"
-              name="acceur_Bank"
-              id="acceur_Bank"
-              value={formData.acceur_Bank}
-              onChange={handleChange}
-            >
-              <option value="">Selecciona una opción</option>
-              <option value="BBVA">BBVA</option>
-              <option value="Santander">Santander</option>
-              <option value="Revolut">Revolut</option>
-              <option value="Wise">Wise</option>
-              <option value="Cajamar">Cajamar</option>
-              <option value="Unicaja">Unicaja</option>
-              <option value="Caixa">Caixa</option>
-              <option value="Bizum">Bizum</option>
-              <option value="Bankinter">Bankinter</option>
-              <option value="RURAL">Caja Rural</option>
-              <option value="PIBANK">Pibank</option>
-              <option value="Money Go">Money Go</option>
-              <option value="EvoBank">EvoBank</option>
-            </Input>
-          </FormGroup>
-          <FormGroup>
-            <Label for="acceur_owner">Propietario</Label>
-            <Input
-              type="text"
-              name="acceur_owner"
-              id="acceur_owner"
-              value={formData.acceur_owner}
-              onChange={handleChange}
-            />
-          </FormGroup>
-          <FormGroup>
-            <Label for="acceur_number">Número de Cuenta</Label>
-            <Input
-              type="text"
-              name="acceur_number"
-              id="acceur_number"
-              value={formData.acceur_number}
-              onChange={handleChange}
-            />
-          </FormGroup>
-          <FormGroup>
-            <Label for="acceur_nie">NIE</Label>
-            <Input
-              type="text"
-              name="acceur_nie"
-              id="acceur_nie"
-              value={formData.acceur_nie}
-              onChange={handleChange}
-            />
-          </FormGroup>
-          <FormGroup>
-            <Label for="acceur_phone">Teléfono</Label>
-            <Input
-              type="text"
-              name="acceur_phone"
-              id="acceur_phone"
-              value={formData.acceur_phone}
-              onChange={handleChange}
-            />
-          </FormGroup>
-          <FormGroup>
-            <Label for="acceur_type">Tipo</Label>
-            <Input
-              type="text"
-              name="acceur_type"
-              id="acceur_type"
-              value={formData.acceur_type}
-              onChange={handleChange}
-            />
-          </FormGroup>
-          <FormGroup>
-            <Label for="acceur_balance">Balance</Label>
-            <Input
-              type="number"
-              name="acceur_balance"
-              id="acceur_balance"
-              value={formData.acceur_balance}
-              onChange={handleChange}
-            />
-          </FormGroup>
-        </Form>
-      </ModalBody>
-      <ModalFooter>
-        <Button color="secondary" onClick={handleClose}>
-          Cerrar
-        </Button>
-        <Button color="primary" onClick={handleSubmitBank}>
-          Agregar
-        </Button>
-      </ModalFooter>
-    </Modal>
-  </div>
-)}
+            <Modal centered isOpen={modalKYC} toggle={closeKYCModal}>
+              <ModalHeader toggle={closeKYCModal}>
+                Enviar Link de KYC a {selectedUser?.use_name} {selectedUser?.use_lastName}
+              </ModalHeader>
+              <ModalBody>
+                <p>¿Deseas enviar el siguiente enlace de KYC a {selectedUser?.use_email}?</p>
+                <Input
+                  type="text"
+                  value={kycLink}
+                  onChange={(e) => setKycLink(e.target.value)}
+                  placeholder="Introduce el enlace de KYC"
+                />
+              </ModalBody>
+              <ModalFooter>
+                <Button color="primary" onClick={handleSendKYC}>
+                  Enviar
+                </Button>
+                <Button color="secondary" onClick={closeKYCModal}>
+                  Cancelar
+                </Button>
+              </ModalFooter>
+            </Modal>
 
 
-    
+            {/* Bancos */}
+            {activeItem === "Bancos" && (
+              <div>
+                <Button color="primary" onClick={toggleBank}>
+                  Agregar Banco
+                </Button>
 
+                <div className="content">
+                  <div className="container-fluid py-4">
+                    <div className="card my-4">
+                      <div className="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                        <div className="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                          <h6 className="text-white text-capitalize ps-3">
+                            Bancos
+                          </h6>
+                        </div>
+                      </div>
+                      <div className="card-body px-0 pb-2">
+                        <div className="table-responsive p-0">
+                          <Table className="align-items-center mb-0">
+                            <thead>
+                              <tr>
+                                <th className="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                  Banco
+                                </th>
+                                <th className="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                  Propietario
+                                </th>
+                                <th className="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                  Número
+                                </th>
+                                <th className="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                  NIE
+                                </th>
+                                <th className="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                  Teléfono
+                                </th>
+                                <th className="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                  Tipo
+                                </th>
+                                <th className="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                  Balance
+                                </th>
+                                <th className="text-secondary opacity-7"></th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {filteredBanks
+                                .filter(
+                                  (bank) =>
+                                    bank.acceur_Bank !== "Ghost" &&
+                                    bank.accusd_Bank !== "Ghost"
+                                )
+                                .map((bank) => (
+                                  <tr
+                                    key={bank.acceur_number}
+                                    onClick={() => {
+                                      setSelectBank(bank);
+                                      toggleBankViewer();
+                                    }}
+                                  >
+                                    <td>{bank.acceur_Bank}</td>
+                                    <td>{bank.acceur_owner}</td>
+                                    <td className="text-center">
+                                      {bank.acceur_number}
+                                    </td>
+                                    <td className="text-center">
+                                      {bank.acceur_nie}
+                                    </td>
+                                    <td className="text-center">
+                                      {bank.acceur_phone}
+                                    </td>
+                                    <td className="text-center">
+                                      {bank.acceur_type}
+                                    </td>
+                                    <td className="text-center">
+                                      {bank.acceur_balance}
+                                    </td>
+                                    <td className="align-middle">
+                                      <Button
+                                        color="danger"
+                                        onClick={() =>
+                                          handleDelete(bank.acceur_number)
+                                        }
+                                      >
+                                        <FaTrash />
+                                      </Button>
+                                      <Button
+                                        color={
+                                          bank.acceur_status === "Activo"
+                                            ? "secondary"
+                                            : "success"
+                                        }
+                                        onClick={() =>
+                                          handleDisable(bank.acceur_number)
+                                        }
+                                      >
+                                        {bank.acceur_status === "Activo"
+                                          ? "Deshabilitar"
+                                          : "Habilitar"}
+                                      </Button>
+                                    </td>
+                                  </tr>
+                                ))}
+                            </tbody>
+                          </Table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Modal para agregar un banco */}
+                <Modal isOpen={showBankModal} toggle={handleClose}>
+                  <ModalHeader toggle={handleClose}>Agregar Banco</ModalHeader>
+                  <ModalBody>
+                    <Form>
+                      <FormGroup>
+                        <Label for="acceur_Bank">Banco</Label>
+                        <Input
+                          type="select"
+                          name="acceur_Bank"
+                          id="acceur_Bank"
+                          value={formData.acceur_Bank}
+                          onChange={handleChange}
+                        >
+                          <option value="">Selecciona una opción</option>
+                          <option value="BBVA">BBVA</option>
+                          <option value="Santander">Santander</option>
+                          <option value="Revolut">Revolut</option>
+                          <option value="Wise">Wise</option>
+                          <option value="Cajamar">Cajamar</option>
+                          <option value="Unicaja">Unicaja</option>
+                          <option value="Caixa">Caixa</option>
+                          <option value="Bizum">Bizum</option>
+                          <option value="Bankinter">Bankinter</option>
+                          <option value="RURAL">Caja Rural</option>
+                          <option value="PIBANK">Pibank</option>
+                          <option value="Money Go">Money Go</option>
+                          <option value="EvoBank">EvoBank</option>
+                        </Input>
+                      </FormGroup>
+                      <FormGroup>
+                        <Label for="acceur_owner">Propietario</Label>
+                        <Input
+                          type="text"
+                          name="acceur_owner"
+                          id="acceur_owner"
+                          value={formData.acceur_owner}
+                          onChange={handleChange}
+                        />
+                      </FormGroup>
+                      <FormGroup>
+                        <Label for="acceur_number">Número de Cuenta</Label>
+                        <Input
+                          type="text"
+                          name="acceur_number"
+                          id="acceur_number"
+                          value={formData.acceur_number}
+                          onChange={handleChange}
+                        />
+                      </FormGroup>
+                      <FormGroup>
+                        <Label for="acceur_nie">NIE</Label>
+                        <Input
+                          type="text"
+                          name="acceur_nie"
+                          id="acceur_nie"
+                          value={formData.acceur_nie}
+                          onChange={handleChange}
+                        />
+                      </FormGroup>
+                      <FormGroup>
+                        <Label for="acceur_phone">Teléfono</Label>
+                        <Input
+                          type="text"
+                          name="acceur_phone"
+                          id="acceur_phone"
+                          value={formData.acceur_phone}
+                          onChange={handleChange}
+                        />
+                      </FormGroup>
+                      <FormGroup>
+                        <Label for="acceur_type">Tipo</Label>
+                        <Input
+                          type="text"
+                          name="acceur_type"
+                          id="acceur_type"
+                          value={formData.acceur_type}
+                          onChange={handleChange}
+                        />
+                      </FormGroup>
+                      <FormGroup>
+                        <Label for="acceur_balance">Balance</Label>
+                        <Input
+                          type="number"
+                          name="acceur_balance"
+                          id="acceur_balance"
+                          value={formData.acceur_balance}
+                          onChange={handleChange}
+                        />
+                      </FormGroup>
+                    </Form>
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button color="secondary" onClick={handleClose}>
+                      Cerrar
+                    </Button>
+                    <Button color="primary" onClick={handleSubmitBank}>
+                      Agregar
+                    </Button>
+                  </ModalFooter>
+                </Modal>
+              </div>
+            )}
           </div>
         </div>
       ) : admin.adm_role === "B" ? (
@@ -3205,7 +3288,7 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
           <div
             className="app-content"
             style={{ width: window.innerWidth < 450 ? "50%" : "100%" }}
-            
+
           >
             <div className="app-content-header">
               <div className="bars" onClick={showSidebar}>
@@ -3240,7 +3323,7 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
                         ? "sidebar-list-item active"
                         : "sidebar-list-item"
                     }
-                    onClick={() => {handleClick("Home"); setSidebar(false)}}
+                    onClick={() => { handleClick("Home"); setSidebar(false) }}
                   >
                     <div>
                       <svg
@@ -3267,7 +3350,7 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
                         ? "sidebar-list-item active"
                         : "sidebar-list-item"
                     }
-                    onClick={() => {handleClick("Usuarios no verificados"); setSidebar(false)}}
+                    onClick={() => { handleClick("Usuarios no verificados"); setSidebar(false) }}
                   >
                     <div>
                       <svg
@@ -3406,14 +3489,47 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
               >
                 <div className="content">
                   <div className="container-fluid py-4">
-                 
+                    <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+                      <div className="card modern-card bg-gradient-info">
+                        <div className="card-header p-3 pt-2">
+                          <div className="icon-container bg-gradient-info text-white">
+                            <FaUserTimes className="icon" />
+                          </div>
+                          <div className="text-end pt-1">
+                            <p className="text-sm mb-0 text-capitalize">
+                              Usuarios por verificación
+                            </p>
+                            <h4 className="mb-0">
+                              {dataUsers ? (
+                                dataUsers.filter(
+                                  (user) => user.use_verif === "E"
+                                ).length
+                              ) : (
+                                <b>No hay usuarios</b>
+                              )}
+                            </h4>
+                          </div>
+                        </div>
+                        <hr className="modern-horizontal my-0" />
+                        <div className="card-footer p-3">
+                          <button
+                            className="btn btn-light"
+                            onClick={() =>
+                              handleCardClick("Usuarios no verificados")
+                            }
+                          >
+                            Ver usuarios
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                     <div
                       className="card my-4"
                       style={{
                         width: window.innerWidth < 450 ? "100%" : "100%",
                       }}
                     >
-                      
+
                       <div className="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
                         <div className="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
                           <h6 className="text-white text-capitalize ps-3">
@@ -3487,8 +3603,8 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
                                     <td className="align-middle text-center text-sm">
                                       <span
                                         className={`badge badge-sm ${move.mov_status === "E" && (
-                                            <FaClock className="pending-icon" />
-                                          )
+                                          <FaClock className="pending-icon" />
+                                        )
                                           }`}
                                       ></span>
                                     </td>
@@ -3520,111 +3636,111 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
 
             {/* Users per Verificate */}
             {activeItem === "Usuarios no verificados" && (
-  <div
-    className="dashboard-container"
-    style={{ width: window.innerWidth < 450 ? "100%" : "100%" }}
-  >
-    <div className="content">
-      <div className="container-fluid py-4">
-        <div
-          className="card my-4"
-          style={{ width: window.innerWidth < 450 ? "100%" : "100%" }}
-        >
-          <div className="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-            <div className="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
-              <h6 className="text-white text-capitalize ps-3">
-                Usuarios No Verificados
-              </h6>
-            </div>
-          </div>
-          <div className="card-body px-0 pb-2">
-            <div className="table-responsive p-0">
-              <table className="table align-items-center mb-0">
-                <thead>
-                  <tr>
-                    <th className="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                      Usuario
-                    </th>
-                    <th className="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
-                      DNI
-                    </th>
-                    <th className="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                      Verificación
-                    </th>
-                    <th className="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                      USD
-                    </th>
-                    <th className="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                      EUR
-                    </th>
-                    <th className="text-secondary opacity-7"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredUsuarios
-                    .filter((user) => user.use_verif === "E" || user.use_verif === "e")
-                    .map((user) => (
-                      <tr key={user.use_id}>
-                        <td>
-                          <div className="d-flex px-2 py-1">
-                            <div>
-                              <FaUserCircle className="avatar avatar-sm me-3 border-radius-lg" />
-                            </div>
-                            <div className="d-flex flex-column justify-content-center">
-                              <h6 className="mb-0 text-sm">
-                                {user.use_name} {user.use_lastName}
-                              </h6>
-                              <p className="text-xs text-secondary mb-0">
-                                {user.use_email}
-                              </p>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="align-middle text-start">
-                          <span className="text-secondary text-xs font-weight-bold">
-                            {user.use_dni || "No hay resultados"}
-                          </span>
-                        </td>
-                        <td className="align-middle text-center text-sm">
-                          <span className="badge badge-sm">
-                            <AiOutlineClockCircle
-                              style={{ color: "blue", fontSize: "2em" }}
-                            />
-                          </span>
-                        </td>
-                        <td className="align-middle text-center">
-                          <span className="text-secondary text-xs font-weight-bold">
-                            {user.use_amountUsd || 0}
-                          </span>
-                        </td>
-                        <td className="align-middle text-center">
-                          <span className="text-secondary text-xs font-weight-bold">
-                            {user.use_amountEur || 0}
-                          </span>
-                        </td>
-                        <td className="align-middle">
-                          <Button
-                            outline
-                            color="success"
-                            onClick={() => {
-                              setSelect(user);
-                              toggleImageUser();
-                            }}
-                          >
-                            Verificar
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
+              <div
+                className="dashboard-container"
+                style={{ width: window.innerWidth < 450 ? "100%" : "100%" }}
+              >
+                <div className="content">
+                  <div className="container-fluid py-4">
+                    <div
+                      className="card my-4"
+                      style={{ width: window.innerWidth < 450 ? "100%" : "100%" }}
+                    >
+                      <div className="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                        <div className="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                          <h6 className="text-white text-capitalize ps-3">
+                            Usuarios No Verificados
+                          </h6>
+                        </div>
+                      </div>
+                      <div className="card-body px-0 pb-2">
+                        <div className="table-responsive p-0">
+                          <table className="table align-items-center mb-0">
+                            <thead>
+                              <tr>
+                                <th className="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                  Usuario
+                                </th>
+                                <th className="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                  DNI
+                                </th>
+                                <th className="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                  Verificación
+                                </th>
+                                <th className="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                  USD
+                                </th>
+                                <th className="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                  EUR
+                                </th>
+                                <th className="text-secondary opacity-7"></th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {filteredUsuarios
+                                .filter((user) => user.use_verif === "E" || user.use_verif === "e")
+                                .map((user) => (
+                                  <tr key={user.use_id}>
+                                    <td>
+                                      <div className="d-flex px-2 py-1">
+                                        <div>
+                                          <FaUserCircle className="avatar avatar-sm me-3 border-radius-lg" />
+                                        </div>
+                                        <div className="d-flex flex-column justify-content-center">
+                                          <h6 className="mb-0 text-sm">
+                                            {user.use_name} {user.use_lastName}
+                                          </h6>
+                                          <p className="text-xs text-secondary mb-0">
+                                            {user.use_email}
+                                          </p>
+                                        </div>
+                                      </div>
+                                    </td>
+                                    <td className="align-middle text-start">
+                                      <span className="text-secondary text-xs font-weight-bold">
+                                        {user.use_dni || "No hay resultados"}
+                                      </span>
+                                    </td>
+                                    <td className="align-middle text-center text-sm">
+                                      <span className="badge badge-sm">
+                                        <AiOutlineClockCircle
+                                          style={{ color: "blue", fontSize: "2em" }}
+                                        />
+                                      </span>
+                                    </td>
+                                    <td className="align-middle text-center">
+                                      <span className="text-secondary text-xs font-weight-bold">
+                                        {user.use_amountUsd || 0}
+                                      </span>
+                                    </td>
+                                    <td className="align-middle text-center">
+                                      <span className="text-secondary text-xs font-weight-bold">
+                                        {user.use_amountEur || 0}
+                                      </span>
+                                    </td>
+                                    <td className="align-middle">
+                                      <Button
+                                        outline
+                                        color="success"
+                                        onClick={() => {
+                                          setSelect(user);
+                                          toggleImageUser();
+                                        }}
+                                      >
+                                        Verificar
+                                      </Button>
+                                    </td>
+                                  </tr>
+                                ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
           </div>
         </div>
@@ -3779,9 +3895,9 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
                 style={{ width: window.innerWidth < 450 ? "100%" : "100%" }}
               >
                 <div className="content">
-                <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-                      
-                      </div>
+                  <div className="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+
+                  </div>
                   <div className="container-fluid py-4">
                     <div
                       className="card my-4"
@@ -3862,8 +3978,8 @@ const toggleEditBankModal = () => setEditBankModal(!editBankModal);
                                     <td className="align-middle text-center text-sm">
                                       <span
                                         className={`badge badge-sm ${move.mov_status === "E" && (
-                                            <FaClock className="pending-icon" />
-                                          )
+                                          <FaClock className="pending-icon" />
+                                        )
                                           }`}
                                       ></span>
                                     </td>

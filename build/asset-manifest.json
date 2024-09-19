@@ -1,0 +1,25 @@
+{
+  "files": {
+    "main.css": "/static/css/main.84a8566d.css",
+    "main.js": "/static/js/main.a32a5403.js",
+    "static/media/Logo.png": "/static/media/Logo.2fbb384c2f8a5d3ce6c0.png",
+    "static/media/Logo-Simple.png": "/static/media/Logo-Simple.eb75f0856518b1ddf85a.png",
+    "static/media/banner1.jpeg": "/static/media/banner1.afb8cdcb9e53f10ece9d.jpeg",
+    "static/media/Banner2.jpeg": "/static/media/Banner2.0a36e92fa4448ac04d0e.jpeg",
+    "static/media/about.png": "/static/media/about.1cf24f28fc3d5fe59b05.png",
+    "static/media/Ecuador.png": "/static/media/Ecuador.020bcfa9963afe092620.png",
+    "static/media/Peru.png": "/static/media/Peru.d8d09fdb04621d3c404b.png",
+    "static/media/EEUU.png": "/static/media/EEUU.beefc9ca5694230c0723.png",
+    "static/media/Venezuela.png": "/static/media/Venezuela.e46c66ec7b50e4343093.png",
+    "static/media/Panama.png": "/static/media/Panama.4a919da24c829e916f23.png",
+    "static/media/Colombia.png": "/static/media/Colombia.b3182b8dba94809b4712.png",
+    "static/media/Chile.png": "/static/media/Chile.832f57e8a73a3ed8be10.png",
+    "index.html": "/index.html",
+    "main.84a8566d.css.map": "/static/css/main.84a8566d.css.map",
+    "main.a32a5403.js.map": "/static/js/main.a32a5403.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.84a8566d.css",
+    "static/js/main.a32a5403.js"
+  ]
+}

@@ -10,14 +10,15 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
-  Label,
-  Input,
+
 } from "reactstrap";
-import { WhatsAppButton } from "../Components/whatsapp";
+// import arrowup from "../Assets/Images/arrowup.png";
+// import arrowdown from "../Assets/Images/arrowdown.png";
+// import clock from "../Assets/Images/clock.png";
 import bolivares from "../Assets/Images/bolivar.png";
 import VerificationImage from "../Assets/Images/warning.png";
-import dniverify from "../Assets/Images/dniverify.jpeg";
-import dni from "../Assets/Images/dni.png";
+//import dniverify from "../Assets/Images/dniverify.jpeg";
+//import dni from "../Assets/Images/dni.png";
 import { Link } from "react-router-dom";
 // import { clearLocalStorage } from "../Hooks/useLocalStorage";
 import { FixeedAlert } from "../Components/FixeedAlert";
@@ -36,12 +37,14 @@ function Changes() {
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertType, setAlertType] = useState("");
+  const [kycLink, setKycLink] = useState(null);  // Estado para almacenar el enlace KYC
 
-  const [use_dni, setUseDNI] = useState("");
+
+  /* const [use_dni, setUseDNI] = useState("");
   const [use_phone, setUsePhone] = useState("");
   const [use_img, setUseImg] = useState("");
   const [use_imgDni, setUseImgDni] = useState("");
-  const [termsCheckbox, setTermsCheckbox] = useState(false);
+  const [termsCheckbox, setTermsCheckbox] = useState(false); */
   const [modal, setModal] = useState(false);
   const [currencyPrice, setCurrencyPrice] = useState([]);
 
@@ -56,24 +59,87 @@ function Changes() {
     }
   }, [setCurrencyPrice, url]);
 
-
-  const fetchCurrencyData = useCallback(async () => {
-    try {
-      const response = await axios.get(`${url}/currencyPrice`);
-      setCurrencyPrice(response.data); // Asegúrate de que esto se está estableciendo correctamente
-    } catch (error) {
-      console.log(error);
-    }
-  }, [setCurrencyPrice, url]);
-
-
-
   const clearLocal = () => {
     clearLocalStorage();
     setTimeout(() => {
       window.location.href = "/Login";
     }, 500);
   };
+
+  const handleKycRequest = async () => {
+    setLoading(true);  // Activa el estado de carga
+    try {
+      console.log("Solicitando KYC para el usuario ID:", user.use_id);
+  
+      // Primero verificamos si ya existe un kyc_link para este usuario
+      const existingKycLinkResponse = await axios.get(`${url}/kyclink/user/${user.use_id}`, {
+        headers: {
+          Authorization: `Bearer ${infoTkn}`,  // Utiliza el token adecuado
+          "Content-Type": "application/json",
+        },
+      });
+  
+      const existingKycLink = existingKycLinkResponse.data;
+  
+      if (existingKycLink) {
+        // Si existe un kyc_link, hacemos un PUT para actualizar el kyc_link_status a 'Pending'
+        await axios.put(`${url}/kyclink/${existingKycLink.kyc_link_id}`, {
+          kyc_link_status: "Pending",
+        }, {
+          headers: {
+            Authorization: `Bearer ${infoTkn}`,  // Utiliza el token adecuado
+            "Content-Type": "application/json",
+          },
+        });
+  
+        console.log("KYC link existente actualizado para el usuario:", user.use_id);
+        setKycLink(existingKycLink.kyc_link);  // Guardar el enlace KYC si ya existe
+  
+      } else {
+        // Si no existe, creamos un nuevo kyc_link
+        const kycData = {
+          kyc_link: "",  // Esto debería generarse en el servidor
+          kyc_link_status: "Pending",
+          kyc_link_date: new Date().toISOString(),  // Fecha actual
+          kyc_user_id: user.use_id,  // ID del usuario actual
+        };
+  
+        const newKycResponse = await axios.post(`${url}/kyclink/create`, kycData, {
+          headers: {
+            Authorization: `Bearer ${infoTkn}`,  // Utiliza el token adecuado
+            "Content-Type": "application/json",
+          },
+        });
+  
+        console.log("Nuevo KYC link creado para el usuario:", user.use_id);
+        setKycLink(newKycResponse.data.kyc_link);  // Guardar el nuevo enlace KYC
+      }
+  
+      // Actualizamos el estado del usuario a "En proceso de verificación"
+      await axios.put(`${url}/Users/${user.use_id}`, {
+        use_verif: "E",
+      }, {
+        headers: {
+          Authorization: `Bearer ${infoTkn}`,  // Utiliza el token adecuado
+          "Content-Type": "application/json",
+        },
+      });
+  
+  
+      // Mostramos el modal de confirmación
+      toast.success("¡KYC solicitado con éxito!");
+  
+    } catch (error) {
+      console.error("Error al solicitar el link KYC:", error);
+      toast.error("Error al solicitar el link KYC.");
+    } finally {
+      setLoading(false);  // Desactiva el estado de carga
+    }
+  };
+  
+
+
+
 
   const toggleModal = useCallback(() => {
     setModalOpen(!modalOpen);
@@ -92,80 +158,104 @@ function Changes() {
   };
 
   const fetchDataUser = useCallback(async () => {
-    try {
-      const response = await axios.get(`${url}/Auth/findByToken/${infoTkn}`, {
-        headers: {
-          Authorization: `Bearer ${infoTkn}`,
-        },
-      });
-      setUser(response.data);
+  try {
+    // Obtener información del usuario
+    const response = await axios.get(`${url}/Auth/findByToken/${infoTkn}`, {
+      headers: {
+        Authorization: `Bearer ${infoTkn}`,
+      },
+    });
+    const userData = response.data;
+    setUser(userData);
 
-      if (response.data.use_verif === "N") {
-        setAlertMessage(
-          <span style={{ cursor: "pointer" }} onClick={toggleModal}>
-            Usuario no verificado
-          </span>
-        );
-        setAlertType("error");
-      } else if (response.data.use_verif === "E") {
-        setAlertMessage("Usuario en proceso de verificación");
-        setAlertType("info");
-      } else if (response.data.use_verif === "S") {
-        setAlertMessage("Usuario verificado");
-        setAlertType("success");
-      }
-      setShowAlert(true);
-    } catch (error) {
-      console.log(error);
+    // Obtener el KYC link asociado al usuario
+    const kycResponse = await axios.get(`${url}/kyclink/user/${userData.use_id}`, {
+      headers: {
+        Authorization: `Bearer ${infoTkn}`,
+      },
+    });
+    
+    const kycData = kycResponse.data;
+
+    // Si existe un KYC link, lo guardamos en el estado
+    if (kycData && kycData.kyc_link) {
+      setKycLink(kycData.kyc_link);
+    } else {
+      setKycLink(null);
     }
-  }, [setUser, infoTkn, url, toggleModal]);
 
-  const handleSubmitVerifyDni = () => {
-    const formData = new FormData();
-    formData.append("use_imgDni", use_imgDni);
-
-    try {
-      axios.put(`${url}/Users/dni/${user.use_id}`, formData, {
-        headers: {
-          Authorization: `Bearer ${infoTkn}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      axios.post(`${url}/Mailer/EmailPending/${user.use_email}`);
-      toast.success("Acción realizada con éxito!");
-    } catch (error) {
-      toast.error("Error al intentar realizar la acción.");
+    // Manejar los mensajes de alerta según el estado de verificación del usuario
+    if (userData.use_verif === "N") {
+      setAlertMessage(
+        <span style={{ cursor: "pointer" }} onClick={toggleModal}>
+          Usuario no verificado
+        </span>
+      );
+      setAlertType("error");
+    } else if (userData.use_verif === "E") {
+      setAlertMessage("Usuario en proceso de verificación");
+      setAlertType("info");
+    } else if (userData.use_verif === "S") {
+      setAlertMessage("Usuario verificado");
+      setAlertType("success");
     }
-  };
 
-  const handleSubmitVerify = async (event) => {
-    event.preventDefault();
+    setShowAlert(true);
+  } catch (error) {
+    console.log("Error al obtener datos del usuario o KYC link:", error);
+  }
+}, [infoTkn, url, toggleModal]);
 
-    const formData = new FormData();
-    formData.append("use_dni", use_dni);
-    formData.append("use_img", use_img);
-    formData.append("use_phone", use_phone);
-    formData.append("use_verif", "E");
 
-    setLoading(true);
+  /* const handleSubmitVerifyDni = () => {
+     const formData = new FormData();
+     formData.append("use_imgDni", use_imgDni);
+ 
+     try {
+       axios.put(`${url}/Users/dni/${user.use_id}`, formData, {
+         headers: {
+           Authorization: `Bearer ${infoTkn}`,
+           "Content-Type": "multipart/form-data",
+         },
+       });
+ 
+       toast.success("Acción realizada con éxito!");
+     } catch (error) {
+       toast.error("Error al intentar realizar la acción.");
+     }
+   }; */
 
-    try {
-      await axios.put(`${url}/Users/${user.use_id}`, formData, {
-        headers: {
-          Authorization: `Bearer ${infoTkn}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+  /* const handleSubmitVerify = async (event) => {
+     event.preventDefault();
+ 
+     const formData = new FormData();
+     formData.append("use_dni", use_dni);
+     formData.append("use_img", use_img);
+     formData.append("use_phone", use_phone);
+     formData.append("use_verif", "E");
+ 
+     setLoading(true);
+ 
+     try {
+       await axios.put(`${url}/Users/${user.use_id}`, formData, {
+         headers: {
+           Authorization: `Bearer ${infoTkn}`,
+           "Content-Type": "multipart/form-data",
+         },
+       });
+ 
+       handleSubmitVerifyDni();
+       toggleSecondModal();
+ 
+       toast.success("Acción realizada con éxito!");
+     } catch (error) {
+       toast.error("Error al intentar realizar la acción.");
+     } finally {
+       setLoading(false);
+     }
+   };
+ */
 
-      handleSubmitVerifyDni();
-      toggleSecondModal();
-
-    } catch (error) {
-      toast.error("Error al intentar realizar la acción.");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
     fetchCurrencyData();
@@ -174,7 +264,6 @@ function Changes() {
 
   return (
     <div className="Changes container px-5 py-4 my-5">
-            <WhatsAppButton />
       <Row>{/* Placeholder for potential content */}</Row>
       {logged ? (
         user.use_verif === "S" ? (
@@ -282,7 +371,33 @@ function Changes() {
                               </span>
                             </div>
                           </td>
-                        </tr> 
+                        </tr>
+                        <tr>
+                          <td className="align-middle">
+                            <div className="d-flex flex-row">
+                              <div className="d-flex flex-row justify-content-center align-items-center square round-corner-small light-yellow-bg-color yellow-color font-20">
+                                <img src={bolivares} alt="" />
+                              </div>
+                              <div className="d-flex flex-column ps-2">
+                                <span className="font-14 weight-700 purple-color-2">
+                                  Euros
+                                </span>
+                                <span className="font-10 weight-500 purple-color-2">
+                                  Dolares
+                                </span>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="align-middle text-end">
+                            <div className="d-flex flex-column align-items-end">
+                              <span className="font-14 weight-700 purple-color-2">
+                                {currencyPrice.length > 0
+                                  ? currencyPrice[0].cur_EurToUsd
+                                  : "N/A"}
+                              </span>
+                            </div>
+                          </td>
+                        </tr>
                         <tr>
                           <td className="align-middle">
                             <div className="d-flex flex-row">
@@ -310,7 +425,6 @@ function Changes() {
                           </td>
                         </tr>
                       </tbody>
-
                     </Table>
                   </div>
                 </Col>
@@ -558,6 +672,32 @@ function Changes() {
                               </div>
                               <div className="d-flex flex-column ps-2">
                                 <span className="font-14 weight-700 purple-color-2">
+                                  Euros
+                                </span>
+                                <span className="font-10 weight-500 purple-color-2">
+                                  Dolares
+                                </span>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="align-middle text-end">
+                            <div className="d-flex flex-column align-items-end">
+                              <span className="font-14 weight-700 purple-color-2">
+                                {currencyPrice.length > 0
+                                  ? currencyPrice[0].cur_EurToUsd
+                                  : "N/A"}
+                              </span>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="align-middle">
+                            <div className="d-flex flex-row">
+                              <div className="d-flex flex-row justify-content-center align-items-center square round-corner-small light-yellow-bg-color yellow-color font-20">
+                                <img src={bolivares} alt="" />
+                              </div>
+                              <div className="d-flex flex-column ps-2">
+                                <span className="font-14 weight-700 purple-color-2">
                                   Dolares
                                 </span>
                                 <span className="font-10 weight-500 purple-color-2">
@@ -706,13 +846,14 @@ function Changes() {
         <ModalBody className="text-center">
           Los cambios estarán próximamente habilitados. Mantente informado.
           <br />
-          Puedes realizar los cambios por medio de           <br />
-          <a
-            href="https://wa.me/+34624377261"
+          Puedes realizar los cambios por
+          <Link
+            to="https://wa.me/624377261"
+            target="_blank"
             className="whatsapp-btn"
           >
-            <FaWhatsapp />    WhatsApp
-          </a>
+            <FaWhatsapp /> WhatsApp
+          </Link>
         </ModalBody>
         <ModalFooter>
           <Button color="secondary" onClick={toggle}>
@@ -756,8 +897,10 @@ function Changes() {
                   marginTop: ".5em",
                 }}
               >
-                Para realizar el cambio de divisas necesitamos verificar que
-                eres el propietario de la cuenta.
+                Para utilizar la plataforma de EuropaCambiosVE, debes verificar tu
+              identidad utilizando nuestro sistema KYC. Cumplimos con las
+              normativas ISO 27001 y GDPR para proteger tus datos y garantizar
+              su seguridad.
               </p>
               <p>Verifica tu identidad para empezar a cambiar.</p>
               <Button
@@ -787,146 +930,83 @@ function Changes() {
           Verificación de Identidad
         </ModalHeader>
         <ModalBody>
-          <form onSubmit={handleSubmitVerify}>
-            <div className="form-group">
-              <Label htmlFor="dniInput">
-                Número de Documento de Identidad (Debe contar con foto tipo
-                carnet):
-              </Label>
-              <Input
-                type="text"
-                className="form-control"
-                id="dniInput"
-                placeholder="Ingresa tu DNI, NIE o Pasaporte"
-                value={use_dni}
-                onChange={(e) => setUseDNI(e.target.value)}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <Label htmlFor="dniInput">Número de Telefono:</Label>
-              <Input
-                type="text"
-                className="form-control"
-                id="dniInput"
-                placeholder="Ingresa tu telefono"
-                value={use_phone}
-                onChange={(e) => setUsePhone(e.target.value)}
-                required
-              />
-            </div>
-            <p
-              style={{
-                color: "rgba(33, 33, 33, 0.6)",
-                marginTop: ".5em",
-              }}
-            >
-              Ingresa el número de documento de identidad. Lo utilizaremos para
-              comprobar que eres realmente tú quien utilizará la plataforma.
-            </p>
-            <p style={{ color: "#a91111", padding: "10px" }}>
-              <strong>IMPORTANTE:</strong> Debes subir la imágen de tu DNI, NIE
-              con foto o PASAPORTE y otra imágen junto a tu rostro como en el
-              ejemplo que se muestra. Los datos deben ser legibles y no debes
-              cubrirlos de ninguna manera. El uso de esta información será
-              únicamente para comprobar que realmente eres tú quien realizará el
-              cambio.
-            </p>
-            <div className="form-group">
-              <Label htmlFor="imageInput">
-                Seleccionar Imagen del DNI, NIE con foto o PASAPORTE:
-              </Label>
-              <Input
-                type="file"
-                className="form-control-file"
-                id="imageInput"
-                accept=".jpg,.jpeg,.png,.gif,.pdf"
-                onChange={(e) => setUseImg(e.target.files[0])}
-                required
-              />
-            </div>
-            <img
-              style={{
-                marginLeft: "100px",
-                marginTop: "1em",
-                width: "100px",
-              }}
-              src={dni}
-              alt="Dni"
-              className="modal-image1"
-            />
-            <div className="form-group">
-              <Label htmlFor="imageInput">
-                Seleccionar Imagen Tipo Selfie:
-              </Label>
-              <Input
-                type="file"
-                className="form-control-file"
-                id="imageInputDNI"
-                accept=".jpg,.jpeg,.png,.gif,.pdf"
-                onChange={(e) => setUseImgDni(e.target.files[0])}
-                required
-              />
-            </div>
-            <img
-              style={{ marginLeft: "90px", width: "200px" }}
-              src={dniverify}
-              alt="ImageVerification"
-              className="modal-image1"
-            />
-            <div
-              style={{ marginTop: "1em", marginLeft: ".5em" }}
-              className="form-check"
-            >
-              <Input
-                type="checkbox"
-                className="form-check-input"
-                id="termsCheckbox"
-                checked={termsCheckbox}
-                onChange={(e) => setTermsCheckbox(e.target.checked)}
-              />
-              <Label className="form-check-label" htmlFor="termsCheckbox">
+          {kycLink ? (
+            <div className="text-center">
+              <p className="kyc-modal-text">
+              Tu usuario necesita verificación. Prepara tu documentación
+              VIGENTE: DNI, NIE, pasaporte o cédula. Sigue los pasos como lo
+              indica el proceso.
+              <strong>
                 {" "}
-                Acepto los
-                <Link to="/TermsAndConditions" style={{ paddingLeft: "5px" }}>
-                  términos y condiciones
-                </Link>
-              </Label>
+                No subas cartón rojo, ni NIE de hoja blanca.
+              </strong>{" "}
+              Evita que tu verificación sea rechazada, subiendo una foto clara
+              de la parte frontal y reverso del documento.
+            </p>
+            <p className="kyc-modal-text">
+              El tiempo estimado de verificación dentro de nuestro horario
+              laboral es de aproximadamente <strong>20 minutos</strong>.
+            </p>
+              <p>Tu enlace de verificación KYC está disponible:</p>
+              <a href={kycLink} target="_blank" rel="noopener noreferrer">
+                <Button color="primary" className="my-3">
+                  Ir a la verificación KYC
+                </Button>
+              </a>
             </div>
-
-            <Button
-              type="submit"
-              className="btn col-md-12"
-              color="success"
-            >
-              {loading ? "Enviando..." : "Enviar"}
-            </Button>
-          </form>
+          ) : (
+            <div className="text-center">
+              <p>
+                {user.use_verif === "E"
+                  ? "Tu enlace de verificación KYC está siendo solicitado por un administrador. En breve estará disponible."
+                  : "Haz clic en el botón para solicitar tu enlace de verificación KYC."}
+              </p>
+              <Button
+                color="success"
+                onClick={handleKycRequest}
+                disabled={loading || user.use_verif === "E"}
+              >
+                {loading ? "Solicitando..." : "Solicitar KYC Link"}
+              </Button>
+            </div>
+          )}
         </ModalBody>
       </Modal>
+
+
+
 
       <Modal isOpen={fifthModalOpen} centered toggle={toggleFifthModal}>
         <ModalHeader toggle={toggleFifthModal}>
           Verificación en proceso
         </ModalHeader>
         <ModalBody>
-          <div style={{ textAlign: "center" }}>
-            <FaExclamationCircle
-              style={{
-                fontSize: "48px",
-                marginBottom: "20px",
-                color: "red",
-              }}
-            />
-            <p>Tu usuario está en proceso de verificación.</p>
-            <p>Espera a que un administrador apruebe tu identidad.</p>
-            <p>
-              El tiempo estimado de verificación dentro de nuestro horario
-              laboral es de aproximadamente 20 minutos.
-            </p>
-          </div>
+          {kycLink ? (
+            <div className="text-center">
+              <p>Tu enlace de verificación KYC está disponible:</p>
+              <a href={kycLink} target="_blank" rel="noopener noreferrer">
+                <Button color="primary" className="my-3">
+                  Ir a la verificación KYC
+                </Button>
+              </a>
+            </div>
+          ) : (
+            <div style={{ textAlign: "center" }}>
+              <FaExclamationCircle
+                style={{
+                  fontSize: "48px",
+                  marginBottom: "20px",
+                  color: "red",
+                }}
+              />
+              <p>Tu usuario está en proceso de verificación.</p>
+              <p>Un administrador está gestionando tu enlace KYC.</p>
+            </div>
+          )}
         </ModalBody>
       </Modal>
+
+
       <ToastContainer autoClose={5000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
     </div>
   );
